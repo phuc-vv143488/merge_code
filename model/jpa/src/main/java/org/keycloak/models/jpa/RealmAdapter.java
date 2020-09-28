@@ -37,8 +37,6 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
-import java.sql.Timestamp;
-
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  * @version $Revision: 1 $
@@ -1950,23 +1948,13 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
     }
 
     @Override
-    public GroupModel createGroup(String name, String code) {
-        return session.realms().createGroup(this, name, code);
-    }
-    
-    @Override
-    public GroupModel createGroup(String name, String code, Boolean domain) {
-        return session.realms().createGroup(this, name, code, domain);
-    }
-    
-    @Override
     public GroupModel createGroup(String name) {
-        return session.realms().createGroup(this, name,"");
+        return session.realms().createGroup(this, name);
     }
 
     @Override
-    public GroupModel createGroup(String id, String name, String code) {
-        return session.realms().createGroup(this, id, name, code);
+    public GroupModel createGroup(String id, String name) {
+        return session.realms().createGroup(this, id, name);
     }
 
     @Override
@@ -1998,30 +1986,15 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
     public List<GroupModel> getTopLevelGroups() {
         return session.realms().getTopLevelGroups(this);
     }
-    
-    @Override
-    public List<GroupModel> getTopLevelGroups(Boolean domain) {
-        return session.realms().getTopLevelGroups(this,domain);
-    }
 
     @Override
     public List<GroupModel> getTopLevelGroups(Integer first, Integer max) {
         return session.realms().getTopLevelGroups(this, first, max);
     }
-    
-    @Override
-    public List<GroupModel> getTopLevelGroups(Integer first, Integer max, Boolean domain) {
-        return session.realms().getTopLevelGroups(this, first, max, domain);
-    }
 
     @Override
     public List<GroupModel> searchForGroupByName(String search, Integer first, Integer max) {
         return session.realms().searchForGroupByName(this, search, first, max);
-    }
-    
-    @Override
-    public List<GroupModel> searchForGroupByName(String search, Integer first, Integer max, Boolean domain) {
-        return session.realms().searchForGroupByName(this, search, first, max, domain);
     }
 
     @Override
@@ -2331,37 +2304,4 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
         return session.realms().getPositions(this);
     }
     // SP_POSITION
-
-	@Override
-	public String getPositionByVhrId(Long vhrId) {
-		return session.realms().getPositionByVhrId(vhrId, this);
-	}
-
-	@Override
-	public Long getSyncInformationByTaskName(String taskName) {
-		return session.realms().getSyncInformationByTaskName(taskName);
-	}
-
-	@Override
-	public void addSyncInformation(RealmModel realm, String taskName, Long totalSync, Long totalError,
-			Timestamp startTime, Timestamp endTime) {
-		session.realms().addSyncInformation(realm, taskName, totalSync, totalError, startTime, endTime);
-		
-	}
-
-	@Override
-	public String getGroupByVhrId(Long vhrId) {
-		return session.realms().getGroupByVhrId(this, vhrId);
-	}
-
-	@Override
-	public GroupModel getGroupByCode(String code) {
-		return session.realms().getGroupByCode(this, code);
-	}
-
-	@Override
-	public PositionModel getPositionByCode(String code) {
-		return session.realms().getPositionByCode(this, code);
-	}
-
 }

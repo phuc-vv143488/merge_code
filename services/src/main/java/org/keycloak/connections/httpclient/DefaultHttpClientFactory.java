@@ -144,7 +144,7 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
                     String clientKeystorePassword = config.get("client-keystore-password");
                     String clientPrivateKeyPassword = config.get("client-key-password");
                     String[] proxyMappings = config.getArray("proxy-mappings");
-                    boolean disableTrustManager = config.getBoolean("disable-trust-manager", true);
+                    boolean disableTrustManager = config.getBoolean("disable-trust-manager", false);
                     
                     HttpClientBuilder builder = new HttpClientBuilder();
 

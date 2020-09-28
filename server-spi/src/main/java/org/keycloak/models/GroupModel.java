@@ -17,12 +17,11 @@
 
 package org.keycloak.models;
 
-import java.util.Date;
+import org.keycloak.provider.ProviderEvent;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.keycloak.provider.ProviderEvent;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
@@ -35,10 +34,6 @@ public interface GroupModel extends RoleMapperModel {
         KeycloakSession getKeycloakSession();
     }
     String getId();
-    
-    String getCode();
-    
-    void setCode(String code);
 
     String getName();
 
@@ -94,40 +89,4 @@ public interface GroupModel extends RoleMapperModel {
      * @param subGroup
      */
     void removeChild(GroupModel subGroup);
-    
-    void setTelephone(String telephone);
-    
-    void setAddress(String address);
-    
-    void setDescription(String description);
-    
-    void setDeptCode(String deptCode);
-    
-    void setCreateDate(Date createDate);
-    
-    void setTin(String tin);
-    
-    void setEmail(String email);
-    
-    void setContactName(String contactName);
-    
-    void setContactTitle(String contactTitle);
-    
-    void setFax(String fax);
-    
-    void setTel(String tel);
-    
-    void setDeptTypeId(Long deptTypeId);
-    
-    void setLocationId(Long locationId);
-    
-    void setDeptLevel(String deptLevel);
-    
-    void setIp(String ip);
-    
-    void setFullDeptName(String fullDeptName);
-    
-    void setIsActive(Long isActive);
-    
-    void setVhrId(Long vhrId);
 }

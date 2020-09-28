@@ -8,7 +8,7 @@ public class UserAuth {
 	private String newDept;
 	private String oldPosition;
 	private String newPosition;
-	private Long status;
+	private int status;
 	public String getUsername() {
 		return username;
 	}
@@ -51,14 +51,14 @@ public class UserAuth {
 	public void setNewPosition(String newPosition) {
 		this.newPosition = newPosition;
 	}
-	public Long getStatus() {
+	public int getStatus() {
 		return status;
 	}
-	public void setStatus(Long status) {
+	public void setStatus(int status) {
 		this.status = status;
 	}
 	public UserAuth(String username, String password, String employeeCode, String oldDept, String newDept,
-			String oldPosition, String newPosition, Long status) {
+			String oldPosition, String newPosition, int status) {
 		super();
 		this.username = username;
 		this.password = password;

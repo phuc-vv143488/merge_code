@@ -63,7 +63,6 @@
         <class>org.keycloak.models.jpa.entities.PositionEntity</class>
         <class>org.keycloak.models.jpa.entities.PositionRoleMappingEntity</class>
         <class>org.keycloak.models.jpa.entities.PositionAttributeEntity</class>
-        <class>org.keycloak.models.jpa.entities.SyncInformationEntity</class>
         <!--<class>org.keycloak.models.jpa.entities.UserPositionMembershipEntity</class>-->
         <!--SP_POSITION-->
 

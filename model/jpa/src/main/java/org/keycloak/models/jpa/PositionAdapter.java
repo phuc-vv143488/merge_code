@@ -393,18 +393,4 @@ public class PositionAdapter implements PositionModel, JpaModel<PositionEntity> 
         return getPosId().hashCode();
     }
 
-	@Override
-	public Long getVhrId() {
-		if (this.position != null) {
-			return this.position.getVhrId();
-		}
-		return null;
-	}
-
-	@Override
-	public void setVhrId(Long vhrId) {
-		if (this.position != null)
-			this.position.setVhrId(vhrId);
-	}
-
 }

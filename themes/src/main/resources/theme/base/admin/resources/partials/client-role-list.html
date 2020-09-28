@@ -24,7 +24,6 @@
                             </div>
                         </div>
                     </div>
-                    <button id="viewComposedRoles" class="btn btn-default" ng-click="query.search = null; composedRoles()">{{:: 'view-roles' | translate}}</button>
                     <button id="viewAllRoles" class="btn btn-default" ng-click="query.search = null; firstPage()">{{:: 'view-all-roles' | translate}}</button>
                     <div class="pull-right" data-ng-show="access.manageRealm">
                         <a class="btn btn-default" href="#/create/role/{{realm.realm}}/clients/{{client.id}}">{{:: 'add-role' | translate}}</a>

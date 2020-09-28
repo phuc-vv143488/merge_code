@@ -74,8 +74,6 @@ import java.util.Set;
  */
 public class AdminConsole {
     protected static final Logger logger = Logger.getLogger(AdminConsole.class);
-    private static final String HTTP = "http://";
-    private static final String HTTPS = "https://";
 
     @Context
     protected ClientConnection clientConnection;
@@ -299,18 +297,8 @@ public class AdminConsole {
                 authServerBaseUrl = authServerBaseUrl.substring(0, authServerBaseUrl.length() - 1);
             }
 
-            if(authServerBaseUrl.startsWith(HTTP)) {
-            	map.put("authServerUrl", authServerBaseUrl.replace(HTTP	, HTTPS));
-            }
-            else {
-            	 map.put("authServerUrl", authServerBaseUrl);
-            }
-            if(adminBaseUrl.startsWith(HTTP)) {
-            	map.put("authUrl", adminBaseUrl.replace(HTTP	, HTTPS));
-            }
-            else {
-            	 map.put("authUrl", adminBaseUrl);
-            }
+            map.put("authServerUrl", authServerBaseUrl);
+            map.put("authUrl", adminBaseUrl);
             map.put("consoleBaseUrl", Urls.adminConsoleRoot(adminBaseUri, realm.getName()).getPath());
             map.put("resourceUrl", Urls.themeRoot(adminBaseUri).getPath() + "/admin/" + theme.getName());
             map.put("masterRealm", Config.getAdminRealm());

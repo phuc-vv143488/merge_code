@@ -18,7 +18,6 @@
 package org.keycloak.authorization.client.representation;
 
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.keycloak.representations.JsonWebToken;
@@ -33,48 +32,12 @@ public class TokenIntrospectionResponse extends JsonWebToken {
     private Boolean active;
 
     private List<Permission> permissions;
-    
-    private String userName;
-    
-    private String preferredUsername;
-    
-    private String email;
-    
-    private Boolean enable;
 
-    private String phoneNumber;
-    
-    public Map<String, String> getDomainData() {
-		return domainData;
-	}
-
-	private Map<String,String> domainData;
-    
-    public String getPhoneNumber() {
-		return phoneNumber;
-	}
-
-	public Boolean getActive() {
+    public Boolean getActive() {
         return this.active;
     }
 
     public List<Permission> getPermissions() {
         return this.permissions;
     }
-    
-    public String getUserName() {
-    	return this.userName;
-    }
-
-	public String getPreferredUsername() {
-		return preferredUsername;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public Boolean getEnable() {
-		return enable;
-	}
 }

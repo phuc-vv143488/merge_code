@@ -63,9 +63,7 @@ import org.keycloak.representations.idm.authorization.Logic;
                 @NamedQuery(name="findPolicyIdByType", query="select p.id from PolicyEntity p where p.resourceServer.id = :serverId and p.type = :type"),
                 @NamedQuery(name="findPolicyIdByResourceType", query="select p from PolicyEntity p inner join p.config c inner join fetch p.associatedPolicies a where p.resourceServer.id = :serverId and KEY(c) = 'defaultResourceType' and c like :type"),
                 @NamedQuery(name="findPolicyIdByDependentPolices", query="select p.id from PolicyEntity p inner join p.associatedPolicies ap where p.resourceServer.id = :serverId and (ap.resourceServer.id = :serverId and ap.id = :policyId)"),
-                @NamedQuery(name="deletePolicyByResourceServer", query="delete from PolicyEntity p where p.resourceServer.id = :serverId"),
-                @NamedQuery(name ="findPolicyByConfig", query ="select p.id from PolicyEntity p inner join p.config c where  KEY(c) = 'roles' and VALUE(c) like concat('%',:value,'%')"),
-                @NamedQuery(name ="findPolicyByAssociatedPolicy", query = "select p.id from PolicyEntity p inner join p.associatedPolicies ap where ap.id = :id" )
+                @NamedQuery(name="deletePolicyByResourceServer", query="delete from PolicyEntity p where p.resourceServer.id = :serverId")
         }
 )
 

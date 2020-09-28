@@ -923,15 +923,6 @@ module.config([ '$routeProvider', function($routeProvider) {
             },
             controller : 'GroupListCtrl'
         })
-         .when('/realms/:realm/domains', {
-            templateUrl : resourceUrl + '/partials/domain-list.html',
-            resolve : {
-                realm : function(RealmLoader) {
-                    return RealmLoader();
-                }
-            },
-            controller : 'DomainListCtrl'
-        })
         .when('/create/group/:realm/parent/:parentId', {
             templateUrl : resourceUrl + '/partials/create-group.html',
             resolve : {
@@ -944,18 +935,6 @@ module.config([ '$routeProvider', function($routeProvider) {
             },
             controller : 'GroupCreateCtrl'
         })
-        .when('/create/domain/:realm/parent/:parentId', {
-            templateUrl : resourceUrl + '/partials/create-domain.html',
-            resolve : {
-                realm : function(RealmLoader) {
-                    return RealmLoader();
-                },
-                parentId : function($route) {
-                    return $route.current.params.parentId;
-                }
-            },
-            controller : 'DomainCreateCtrl'
-        })
         .when('/realms/:realm/groups/:group', {
             templateUrl : resourceUrl + '/partials/group-detail.html',
             resolve : {
@@ -967,18 +946,6 @@ module.config([ '$routeProvider', function($routeProvider) {
                 }
             },
             controller : 'GroupDetailCtrl'
-        })
-        .when('/realms/:realm/domains/:group', {
-            templateUrl : resourceUrl + '/partials/domain-detail.html',
-            resolve : {
-                realm : function(RealmLoader) {
-                    return RealmLoader();
-                },
-                group : function(GroupLoader) {
-                    return GroupLoader();
-                }
-            },
-            controller : 'DomainDetailCtrl'
         })
         .when('/realms/:realm/groups/:group/attributes', {
             templateUrl : resourceUrl + '/partials/group-attributes.html',
@@ -1003,18 +970,6 @@ module.config([ '$routeProvider', function($routeProvider) {
                 }
             },
             controller : 'GroupMembersCtrl'
-        })
-         .when('/realms/:realm/domains/:group/members', {
-            templateUrl : resourceUrl + '/partials/domain-members.html',
-            resolve : {
-                realm : function(RealmLoader) {
-                    return RealmLoader();
-                },
-                group : function(GroupLoader) {
-                    return GroupLoader();
-                }
-            },
-            controller : 'DomainMembersCtrl'
         })
         .when('/realms/:realm/groups/:group/role-mappings', {
             templateUrl : resourceUrl + '/partials/group-role-mappings.html',

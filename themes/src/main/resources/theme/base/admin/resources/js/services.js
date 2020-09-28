@@ -935,231 +935,9 @@ function clientSelectControl($scope, realm, Client) {
     };
 }
 
-function loadMenu($scope,ResourceServerResource, $q, realm, GroupsCount, client, Group, Notifications, ComponentUtils) {
-	//add domain
-    $scope.groupList = [
-        {
-            "id" : "realm",
-            "displayName": "Menus",
-            "subGroups" : []
-        }
-    ];
-    
-    $scope.query = {
-            realm: realm.realm,
-            client : client.id,
-            deep: false,
-            max : 20,
-            first : 0,
-            parentId: 'realm',
-            type: 'menu'
-        };
-
-    $scope.searchCriteria = '';
-    $scope.currentPage = 1;
-    $scope.currentPageInput = $scope.currentPage;
-    $scope.pageSize = 100;
-    $scope.numberOfPages = 1;
-    $scope.tree = [];
-
-    var refreshGroups = function (search) {
-        console.log('refreshGroups');
-        $scope.currentPageInput = $scope.currentPage;
-
-        var first = ($scope.currentPage * $scope.pageSize) - $scope.pageSize;
-        console.log('first:' + first);
-        var queryParams = {
-            realm : realm.realm,
-            first : first,
-            max : $scope.pageSize
-        };
-        var countParams = {
-            realm : realm.realm,
-            top : 'true'
-        };
-
-        if(angular.isDefined(search) && search !== '') {
-            queryParams.search = search;
-            countParams.search = search;
-        }
-        var promiseGetGroups = $q.defer();
-        ResourceServerResource.query($scope.query, function(entry) {
-            promiseGetGroups.resolve(entry);
-        }, function() {
-            promiseGetGroups.reject('Unable to fetch ' + queryParams);
-        });
-        promiseGetGroups.promise.then(function(groups) {
-        	var stringObj = angular.toJson(groups);
-        	stringObj = stringObj.replace(/_id/g,"id");
-        	groups = angular.fromJson(stringObj);
-            $scope.groupList = [
-                {
-                    "id" : "realm",
-                    "displayName": "Menus",
-                    "subGroups": ComponentUtils.sortGroups('order', groups)
-                }
-            ];
-            
-            //add checkbox value
-            var stringList = angular.toJson($scope.groupList);
-            for (var j = 0; j < $scope.clientMappings.length; j++) {
-            	var menuRole = '"'+($scope.clientMappings[j].name).slice(1)+'"';
-            	if(stringList.includes(menuRole)){
-                	var index = stringList.indexOf(menuRole)+menuRole.length;
-                	stringList=stringList.slice(0, index) + ',"check":true' + stringList.slice(index);
-                }
-            }  
-        	$scope.groupList = angular.fromJson(stringList);
-            
-            
-            
-            if (angular.isDefined(search) && search !== '') {
-                // Add highlight for concrete text match
-                setTimeout(function () {
-                    document.querySelectorAll('span').forEach(function (element) {
-                        if (element.textContent.indexOf(search) != -1) {
-                            angular.element(element).addClass('highlight');
-                        }
-                    });
-                }, 500);
-            }
-        }, function (failed) {
-            Notifications.error(failed);
-        });
-        
-        var promiseCount = $q.defer();
-        console.log('countParams: realm[' + countParams.realm);
-        GroupsCount.query(countParams, function(entry) {
-            promiseCount.resolve(entry);
-        }, function() {
-            promiseCount.reject('Unable to fetch ' + countParams);
-        });
-        promiseCount.promise.then(function(entry) {
-            if(angular.isDefined(entry.count) && entry.count > $scope.pageSize) {
-                $scope.numberOfPages = Math.ceil(entry.count/$scope.pageSize);
-            } else {
-                $scope.numberOfPages = 1;
-            }
-        }, function (failed) {
-            Notifications.error(failed);
-        });
-        
-        $scope.menuMapping.clear();
-    };
-    refreshGroups();
-
-    $scope.$watch('currentPage', function(newValue, oldValue) {
-        if(parseInt(newValue, 10) !== oldValue) {
-            refreshGroups($scope.searchCriteria);
-        }
-    });
-   
-    $scope.tree.selectNodeLabel = function(selectedNode){
-    	//remove highlight from previous node
-		if( $scope.tree.currentNode && $scope.tree.currentNode.selected ) {
-			$scope.tree.currentNode.selected = undefined;
-		}
-
-		//set highlight to selected node
-		selectedNode.selected = 'selected';
-
-		//set currentNode
-		$scope.tree.currentNode = selectedNode;
-    }
-    $scope.tree.selectNodeHead = function(selected){
-    	console.log('click head :'+selected.id);
-        console.log('collapsed 1:'+selected.collapsed);
-    	$scope.tree.selectNodeLabel(selected);
-        console.log('collapsed 2:'+selected.collapsed);
-    	if (!isLeaf(selected)) {
-    		selected.collapsed = !selected.collapsed;
-            console.log('collapsed 3:'+selected.collapsed);
-            if (!selected.haveChild) {
-                return;
-            }
-    	}
-    	//if node is 
-    	var promiseGetSubs = $q.defer();
-    	var querySub = {
-                realm: realm.realm,
-                client : client.id,
-                deep: false,
-                max : 20,
-                first : 0,
-                parentId: selected.id,
-                type: 'menu'
-            };
-        ResourceServerResource.query(querySub, function(entry) {
-        	promiseGetSubs.resolve(entry);
-        }, function() {
-        	promiseGetSubs.reject('Unable to fetch subs ' + $scope.query);
-        });
-        promiseGetSubs.promise.then(function(subs) {
-        	//var subs = [{"name":"Default Resource","type":"urn:admin-cli:resources:default","owner":{"id":"2008d041-0c8f-4270-bf4e-7bc4009daa8a","name":"admin-cli"},"ownerManagedAccess":false,"_id":"b4c085f6-1b3b-4d3d-8e36-550b3ae16bb3","uris":["/*"]},{"name":"Menu1","type":"menu","owner":{"id":"2008d041-0c8f-4270-bf4e-7bc4009daa8a","name":"admin-cli"},"ownerManagedAccess":false,"displayName":"Menu1","_id":"50ebc1f5-6683-4939-86f9-cf76d80e2508","uris":[]}];
-        	var strSubs = angular.toJson(subs);
-        	strSubs = strSubs.replace(/_id/g,"id");
-        	
-        	//add checkbox value
-        	for (var j = 0; j < $scope.clientMappings.length; j++) {
-            	var menuRole = '"'+($scope.clientMappings[j].name).slice(1)+'"';
-            	if(strSubs.includes(menuRole)){
-                	var index = strSubs.indexOf(menuRole)+menuRole.length;
-                	strSubs=strSubs.slice(0, index) + ',"check":true' + strSubs.slice(index);
-                }
-            }  
-        	
-        	var stringList = angular.toJson($scope.groupList);
-        	if(stringList.includes(strSubs.slice(2,-2))) return;
-        	var string1 = stringList.slice(0,stringList.indexOf(selected.id)-6);
-        	var string2 = stringList.slice(stringList.indexOf(selected.id)-6);	
-        	var strEnd = string1 + '"subGroups":'+ strSubs+ ","+string2;
-        	strEnd=strEnd.replace(/,"selected":"selected"/g,'');
-        	$scope.groupList = angular.fromJson(strEnd);
-        	
-        	$scope.menuMapping.clear();
-        })
-    };
-
-    $scope.isDisabled = function() {
-        if (!$scope.tree.currentNode) return true;
-        return $scope.tree.currentNode.id === 'realm';
-    };
-    var isLeaf = function(node) {
-    	console.log('haveChild:'+node.haveChild)
-        return node.id !== "realm" && !node.haveChild;
-    };
-
-    $scope.getGroupClass = function(node) {
-        if (node.id === "realm") {
-            return 'pficon pficon-users';
-        }
-        if (isLeaf(node)) {
-            return 'normal';
-        }
-        console.log('...'+node.collapsed);
-        if (node.collapsed == null) {
-            node.collapsed = true;
-            return 'collapsed';
-        }
-        if (node.collapsed) return 'collapsed';
-        if (!node.collapsed) return 'expanded';
-        return 'collapsed';
-
-    };
-
-    $scope.getSelectedClass = function(node) {
-        if (node.selected) {
-            return 'selected';
-        } else if ($scope.cutNode && $scope.cutNode.id === node.id) {
-            return 'cut';
-        }
-        return undefined;
-    }
-}
-
 function roleControl($scope, $route, realm, role, roles, Client,
             ClientRole, RoleById, RoleRealmComposites, RoleClientComposites,
-            $http, $location, Notifications, Dialog, ComponentUtils,ResourceServerResource, $q,GroupsCount, client, Group) {
+            $http, $location, Notifications, Dialog, ComponentUtils) {
     $scope.$watch(function () {
         return $location.path();
     }, function () {
@@ -1200,9 +978,6 @@ function roleControl($scope, $route, realm, role, roles, Client,
     $scope.selectedClientRoles = [];
     $scope.selectedClientMappings = [];
     $scope.clientMappings = [];
-    
-    $scope.menuDelete = [];
-    $scope.menuAdd = [];
 
     for (var j = 0; j < $scope.realmRoles.length; j++) {
         if ($scope.realmRoles[j].id == role.id) {
@@ -1276,9 +1051,6 @@ function roleControl($scope, $route, realm, role, roles, Client,
     $scope.addClientRole = function() {
         $scope.compositeSwitchDisabled=true;
         $scope.selectedClientRolesToAdd = JSON.parse('[' + $scope.selectedClientRoles + ']');
-        
-        console.log("addClientRole:",$scope.selectedClientRolesToAdd);
-       
         $http.post(authUrl + '/admin/realms/' + realm.realm + '/roles-by-id/' + role.id + '/composites',
             $scope.selectedClientRolesToAdd).then(function() {
             for (var i = 0; i < $scope.selectedClientRolesToAdd.length; i++) {
@@ -1292,7 +1064,6 @@ function roleControl($scope, $route, realm, role, roles, Client,
             $scope.selectedClientRoles = [];
             $scope.selectedClientRolesToAdd = [];
             Notifications.success("Client role added.");
-            loadMenu($scope,ResourceServerResource, $q, realm, GroupsCount, $scope.selectedClient, Group, Notifications, ComponentUtils);
         });
     };
 
@@ -1312,9 +1083,9 @@ function roleControl($scope, $route, realm, role, roles, Client,
             $scope.selectedClientMappings = [];
             $scope.selectedClientMappingsToRemove = [];
             Notifications.success("Client role removed.");
-            loadMenu($scope,ResourceServerResource, $q, realm, GroupsCount, $scope.selectedClient, Group, Notifications, ComponentUtils);
         });
     };
+
 
     $scope.changeClient = function(client) {
         console.log("selected client: ", client);
@@ -1322,7 +1093,6 @@ function roleControl($scope, $route, realm, role, roles, Client,
             $scope.selectedClient = null;
             return;
         }
-        
         $scope.selectedClient = client;
         $scope.clientRoles = ClientRole.query({realm : realm.realm, client : client.id}, function() {
                 $scope.clientMappings = RoleClientComposites.query({realm : realm.realm, role : role.id, client : client.id}, function(){
@@ -1339,7 +1109,6 @@ function roleControl($scope, $route, realm, role, roles, Client,
                             }
                         }
                     }
-                    loadMenu($scope,ResourceServerResource, $q, realm, GroupsCount, client, Group, Notifications, ComponentUtils);
                 });
                 for (var j = 0; j < $scope.clientRoles.length; j++) {
                     if ($scope.clientRoles[j] == role.id) {
@@ -1349,69 +1118,13 @@ function roleControl($scope, $route, realm, role, roles, Client,
                         break;
                     }
                 }
-                
             }
         );
     };
 
-    $scope.selectCheck = function(node) {
-    	if (node.check ) {
-            $scope.menuMapping.set("*"+node.name,false);
-    	}else {
-    		$scope.menuMapping.set("*"+node.name,true);
-    	}
-        return undefined;
-    }
-    
-    $scope.addMenuRole = function(){
-    	 $scope.menuMapping.forEach(function(key,value){
-    		 if(!key){
-    			 for(var i=0;i<$scope.clientMappings.length;i++){
-    				 if(value == $scope.clientMappings[i].name){
-    					 $scope.menuDelete.push($scope.clientMappings[i]);
-    					 break;
-    				 }
-    			 }
-    		 }else {
-    			 for(var i=0;i<$scope.clientRoles.length;i++){
-    				 if(value == $scope.clientRoles[i].name){
-    					 $scope.menuAdd.push($scope.clientRoles[i]);
-    					 break;
-    				 }
-    			 } 
-    		 }
-    	 });
-    	 //add menu
-         $http.post(authUrl + '/admin/realms/' + realm.realm + '/roles-by-id/' + role.id + '/composites',
-        		 $scope.menuAdd).then(function() {
-             for (var i = 0; i < $scope.menuAdd.length; i++) {
-                 var role = $scope.menuAdd[i];
-                 var idx = ComponentUtils.findIndexById($scope.clientRoles, role.id);
-                 if (idx != -1) {
-                     $scope.clientRoles.splice(idx, 1);
-                     $scope.clientMappings.push(role);
-                 }
-             }
-             $scope.menuAdd = [];
-             Notifications.success("Client menu added.");
-             loadMenu($scope,ResourceServerResource, $q, realm, GroupsCount, $scope.selectedClient, Group, Notifications, ComponentUtils);
-         });
-    	 //delete menu
-         $http.delete(authUrl + '/admin/realms/' + realm.realm + '/roles-by-id/' + role.id + '/composites',
-             {data : $scope.menuDelete, headers : {"content-type" : "application/json"}}).then(function() {
-             for (var i = 0; i < $scope.menuDelete.length; i++) {
-                 var role = $scope.menuDelete[i];
-                 var idx = ComponentUtils.findIndexById($scope.clientMappings, role.id);
-                 if (idx != -1) {
-                     $scope.clientMappings.splice(idx, 1);
-                     $scope.clientRoles.push(role);
-                 }
-             }
-             $scope.menuDelete = [];
-             Notifications.success("Client menu removed.");
-             loadMenu($scope,ResourceServerResource, $q, realm, GroupsCount, $scope.selectedClient, Group, Notifications, ComponentUtils);
-         });
-    }
+
+
+
 }
 
 
@@ -2244,12 +1957,6 @@ module.factory('GroupsCount', function($resource) {
 
 module.factory('Groups', function($resource) {
     return $resource(authUrl + '/admin/realms/:realm/groups', {
-        realm : '@realm'
-    })
-});
-
-module.factory('Domains', function($resource) {
-    return $resource(authUrl + '/admin/realms/:realm/domains', {
         realm : '@realm'
     })
 });

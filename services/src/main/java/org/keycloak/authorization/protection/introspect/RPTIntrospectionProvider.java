@@ -82,16 +82,11 @@ public class RPTIntrospectionProvider extends AccessTokenIntrospectionProvider {
                     }
 
                     tokenMetadata.putPOJO("permissions", permissions);
-                    tokenMetadata.putPOJO("domainData", authorization.getDomainData());
                 }
             } else {
                 tokenMetadata = JsonSerialization.createObjectNode();
             }
             
-            tokenMetadata.put("preferredUsername", accessToken.getPreferredUsername()); 
-            tokenMetadata.put("email", accessToken.getEmail()); 
-            tokenMetadata.put("enable", true); 
-            tokenMetadata.put("phoneNumber", accessToken.getPhoneNumber()); 
             tokenMetadata.put("userName", accessToken.getName());   
             tokenMetadata.put("active", accessToken != null);
 

@@ -17,7 +17,6 @@
 
 package org.keycloak.util;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.jose.jwe.JWE;
 import org.keycloak.jose.jwe.JWEConstants;
@@ -207,10 +206,4 @@ public class TokenUtil {
         jwe.verifyAndDecodeJwe(encodedContent, algorithmProvider, encryptionProvider);
         return jwe.getContent();
     }
-	public static String encrytion(String value) {
-		if (value == null || value.isEmpty()) {
-			return null;
-		}
-		return DigestUtils.md5Hex(value);
-	}
 }

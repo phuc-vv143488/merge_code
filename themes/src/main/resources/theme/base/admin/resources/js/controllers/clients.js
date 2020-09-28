@@ -28,8 +28,7 @@ module.controller('ClientRoleListCtrl', function($scope, $route, realm, client, 
         client: $scope.client.id,
         search : null,
         max : 20,
-        first : 0,
-        isCompose : false
+        first : 0
     }
 
     $scope.$watch('query.search', function (newVal, oldVal) {
@@ -40,13 +39,6 @@ module.controller('ClientRoleListCtrl', function($scope, $route, realm, client, 
 
     $scope.firstPage = function() {
         $scope.query.first = 0;
-        $scope.query.isCompose = false;
-        $scope.searchQuery();
-    }
-    
-    $scope.composedRoles = function () {
-    	$scope.query.first = 0;
-        $scope.query.isCompose = true;
         $scope.searchQuery();
     }
 
@@ -72,9 +64,8 @@ module.controller('ClientRoleListCtrl', function($scope, $route, realm, client, 
         });
     };
 
-    $scope.query.isCompose = true;
     $scope.searchQuery();
-    
+
     $scope.removeRole = function(role) {
         Dialog.confirmDelete(role.name, 'role', function() {
             RoleById.remove({
@@ -722,7 +713,7 @@ module.controller('ClientOfflineSessionsCtrl', function($scope, realm, offlineSe
 
 module.controller('ClientRoleDetailCtrl', function($scope, $route, realm, client, role, roles, Client,
                                                         Role, ClientRole, RoleById, RoleRealmComposites, RoleClientComposites,
-                                                        $http, $location, Dialog, Notifications, ComponentUtils,$q, Domains, GroupsCount, Group, GroupChildren, ResourceServerResource) {
+                                                        $http, $location, Dialog, Notifications, ComponentUtils) {
     $scope.realm = realm;
     $scope.client = client;
     $scope.role = angular.copy(role);
@@ -797,18 +788,10 @@ module.controller('ClientRoleDetailCtrl', function($scope, $route, realm, client
             }
         }
     }
-    
-    $scope.isMenu = function(name) {
-    	if(name.includes("*")) return true;
-    	return false;
-    }
-    $scope.menuMapping = new Map();
+
     roleControl($scope, $route, realm, role, roles, Client,
         ClientRole, RoleById, RoleRealmComposites, RoleClientComposites,
-        $http, $location, Notifications, Dialog, ComponentUtils,ResourceServerResource, $q,GroupsCount, client, Group);
-    
-    
-    loadMenu($scope,ResourceServerResource, $q, realm, GroupsCount, client, Group, Notifications, ComponentUtils);
+        $http, $location, Notifications, Dialog, ComponentUtils);
 
 });
 

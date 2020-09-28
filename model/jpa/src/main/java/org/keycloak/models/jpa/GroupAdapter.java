@@ -32,7 +32,6 @@ import org.keycloak.models.utils.RoleUtils;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -328,107 +327,6 @@ public class GroupAdapter implements GroupModel , JpaModel<GroupEntity> {
         return getId().hashCode();
     }
 
-	@Override
-	public void setTelephone(String telephone) {
-		group.setTelephone(telephone);;		
-	}
-
-	@Override
-	public void setAddress(String address) {
-		group.setAddress(address);
-		
-	}
-
-	@Override
-	public void setDescription(String description) {
-		group.setDescription(description);		
-	}
-
-	@Override
-	public void setDeptCode(String deptCode) {
-		group.setDeptCode(deptCode);
-	}
-
-	@Override
-	public void setCreateDate(Date createDate) {
-		group.setCreateDate(createDate);
-	}
-
-	@Override
-	public void setTin(String tin) {
-		group.setTin(tin);
-	}
-
-	@Override
-	public void setEmail(String email) {
-		group.setEmail(email);
-	}
-
-	@Override
-	public void setContactName(String contactName) {
-		group.setContactName(contactName);
-	}
-
-	@Override
-	public void setContactTitle(String contactTitle) {
-		group.setContactTitle(contactTitle);
-	}
-
-	@Override
-	public void setFax(String fax) {
-		group.setFax(fax);
-	}
-
-	@Override
-	public void setTel(String tel) {
-		group.setTel(tel);
-	}
-
-	@Override
-	public void setDeptTypeId(Long deptTypeId) {
-		group.setDeptTypeId(deptTypeId);
-	}
-
-	@Override
-	public void setLocationId(Long locationId) {
-		group.setLocationId(locationId);
-	}
-
-	@Override
-	public void setDeptLevel(String deptLevel) {
-		group.setDeptLevel(deptLevel);
-	}
-
-	@Override
-	public void setIp(String ip) {
-		group.setIp(ip);
-	}
-
-	@Override
-	public void setFullDeptName(String fullDeptName) {
-		group.setFullDeptName(fullDeptName);
-	}
-
-	@Override
-	public void setIsActive(Long isActive) {
-		group.setIsActive(isActive);
-	}
-
-	@Override
-	public void setVhrId(Long vhrId) {
-		group.setVhrId(vhrId);
-		
-	}
-
-	@Override
-	public void setCode(String code) {
-		group.setCode(code);
-	}
-
-	@Override
-	public String getCode() {
-		return group.getCode();
-	}
 
 
 }

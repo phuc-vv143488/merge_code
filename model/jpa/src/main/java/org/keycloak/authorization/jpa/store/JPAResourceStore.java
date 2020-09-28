@@ -23,7 +23,6 @@ import org.keycloak.authorization.model.Resource;
 import org.keycloak.authorization.model.ResourceServer;
 import org.keycloak.authorization.store.ResourceStore;
 import org.keycloak.authorization.store.StoreFactory;
-import org.keycloak.models.jpa.entities.UserRoleMappingEntity;
 import org.keycloak.models.utils.KeycloakModelUtils;
 
 import javax.persistence.EntityManager;
@@ -381,18 +380,4 @@ public class JPAResourceStore implements ResourceStore {
                 .map(entity -> new ResourceAdapter(entity, entityManager, storeFactory))
                 .forEach(consumer);
     }
-
-	@Override
-	public String getDomain(String userId, String roleId) {
-		try {
-			TypedQuery<UserRoleMappingEntity> query = entityManager.createNamedQuery("usersHasRoleDomain",
-					UserRoleMappingEntity.class);
-			query.setFlushMode(FlushModeType.COMMIT);
-			query.setParameter("userId", userId);
-			query.setParameter("roleId", roleId);
-			return query.getSingleResult().getDomain();
-		} catch (Exception ex) {
-			return "0";
-		}
-	}
 }

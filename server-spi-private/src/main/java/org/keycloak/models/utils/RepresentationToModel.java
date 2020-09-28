@@ -1770,11 +1770,6 @@ public class RepresentationToModel {
     }
 
     public static void createOrUpdatePosition(UserRepresentation userRep, RealmModel newRealm, UserModel user) {
-        try {
-            JsonSerialization.writeValueAsString(userRep);
-        } catch (Exception e) {
-            System.out.println(e);
-        }
         if (userRep.getPositionId() != null) {
             PositionModel position = newRealm.getPositionById(userRep.getPositionId());
             if (position == null) {
@@ -2541,6 +2536,7 @@ public class RepresentationToModel {
             existing.setDisplayName(resource.getDisplayName());
 
             if (resource.getType().equalsIgnoreCase("menu")) {
+            	logger.info("---setOrder_exist:"+resource.getOrder());
             	existing.setOrder(resource.getOrder());
             	existing.setParentId(resource.getParentId());
             	existing.setHaveChild(resource.getHaveChild());
@@ -2576,6 +2572,7 @@ public class RepresentationToModel {
 
         Resource model = resourceStore.create(resource.getId(), resource.getName(), resourceServer, ownerId);
         if (resource.getType().equalsIgnoreCase("menu")) {
+            logger.info("---setOrder :"+resource.getOrder());
         	 model.setParentId(resource.getParentId());
              model.setOrder(resource.getOrder());
              model.setHaveChild(resource.getHaveChild());

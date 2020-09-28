@@ -24,14 +24,11 @@
 
 (function ( angular ) {
 	'use strict';
-	var domain =false;
 
 	angular.module( 'angularTreeview', [] ).directive( 'treeModel', ['$compile', function( $compile ) {
 		return {
 			restrict: 'A',
 			link: function ( scope, element, attrs ) {
-				
-				
 				//tree id
 				var treeId = attrs.treeId;
 
@@ -53,35 +50,14 @@
 				var nodeChildren = attrs.nodeChildren || 'children';
 
 				//tree template
-				if (treeType == 'domain') {
-					domain = true;
-				}
-				var templateDomain;
-				if (treeModel == 'groupList') {
-					if (treeType == 'domain') {
-						domain = true;
-					}else
-						domain = false;
-					
-					templateDomain = 
-						'<ul>' +
-	                    '<li data-ng-repeat="node in ' + treeModel + '">' +
-	                        '<i ng-class="getGroupClass(node)" data-ng-click="' + treeId + '.selectNodeHead(node)"></i>' +
-	                    '<span data-ng-class="getSelectedClass(node)" ng-dblclick="edit(node)" data-ng-click="' + treeId + '.selectNodeLabel(node)">{{node.' + nodeLabel + '}}</span>' +
-	                    '<div data-ng-hide="node.collapsed" data-tree-id="' + treeId + '" data-tree-model="node.' + nodeChildren + '" data-node-id=' + nodeId + ' data-node-label=' + nodeLabel + ' data-node-children=' + nodeChildren + '></div>' +
-	                    '</li>' +
-	                    '</ul>';
-				}else {
-					templateDomain = 
-						'<ul>' +
-	                    '<li data-ng-repeat="node in ' + treeModel + '">' +
-	                    	'<input type="checkbox" ng-model="node.checkbox" data-ng-click="selectCheck(node)" ng-checked="node.check" >' +
-	                        '<i ng-class="getGroupClass(node)" data-ng-click="' + treeId + '.selectNodeHead(node)"></i>' +
-	                    '<span data-ng-class="getSelectedClass(node)" ng-dblclick="edit(node)" data-ng-click="' + treeId + '.selectNodeLabel(node)">{{node.' + nodeLabel + '}}</span>' +
-	                    '<div data-ng-hide="node.collapsed" data-tree-id="' + treeId + '" data-tree-model="node.' + nodeChildren + '" data-node-id=' + nodeId + ' data-node-label=' + nodeLabel + ' data-node-children=' + nodeChildren + '></div>' +
-	                    '</li>' +
-	                    '</ul>';
-				}
+				
+				
+				var templateMenu = 
+					'<ul>' +
+                    '<li data-ng-repeat="node in ' + treeModel + '">' +
+                    '<div data-ng-hide="node.collapsed" data-tree-id="' + treeId + '" data-tree-model="node.' + nodeChildren + '" data-node-id=' + nodeId + ' data-node-label=' + nodeLabel + ' data-node-children=' + nodeChildren + '></div>' +
+                    '</li>' +
+                    '</ul>';
                 var template =
                     '<ul>' +
                     '<li data-ng-repeat="node in ' + treeModel + '">' +
@@ -125,8 +101,8 @@
 					}
 					
 					//Rendering template.
-					if (domain) {
-						element.html('').append( $compile( templateDomain )( scope ) );
+					if (treeType == 'menu') {
+						element.html('').append( $compile( templateMenu )( scope ) );
 					}else {
 						element.html('').append( $compile( template )( scope ) );
 					}

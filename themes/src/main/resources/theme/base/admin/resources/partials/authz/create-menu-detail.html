@@ -21,7 +21,7 @@
     <form class="form-horizontal" name="clientForm" novalidate>
         <fieldset class="border-top">
             <div class="form-group">
-                <label class="col-md-2 control-label" for="name">{{:: 'menuCode' | translate}} <span style="display: inline !important" class="required" data-ng-show="create">*</span></label>
+                <label class="col-md-2 control-label" for="name">{{:: 'name' | translate}} <span style="display: inline !important" class="required" data-ng-show="create">*</span></label>
                 <div class="col-sm-6">
                     <input class="form-control" type="text" id="name" name="name" data-ng-model="resource.name" autofocus required data-ng-blur="checkNewNameAvailability()">
                 </div>

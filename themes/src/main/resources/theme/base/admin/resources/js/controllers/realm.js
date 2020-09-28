@@ -20,14 +20,8 @@ function getAccessObject(Auth, Current) {
             return getAccess(Auth, Current, 'query-users') || this.viewUsers;
         },
 
-        
         get queryGroups() {
-            return getAccess(Auth, Current, 'query-groups') || this.viewUsers ;
-        },
-        
-        //SP_ADMIN_FULL
-        get adminFull() {
-            return getAccess(Auth, Current, 'admin-full');
+            return getAccess(Auth, Current, 'query-groups') || this.viewUsers;
         },
 
         // SP_POSITION
@@ -49,19 +43,11 @@ function getAccessObject(Auth, Current) {
         },
 
         get viewRealm() {
-            return (getAccess(Auth, Current, 'view-realm') || getAccess(Auth, Current, 'manage-realm') || this.manageRealm);
-        },
-        
-        get viewRealmFull() {
-            return (getAccess(Auth, Current, 'view-realm') || getAccess(Auth, Current, 'manage-realm') || this.manageRealm) && this.adminFull;
+            return getAccess(Auth, Current, 'view-realm') || getAccess(Auth, Current, 'manage-realm') || this.manageRealm;
         },
 
         get viewClients() {
-            return (getAccess(Auth, Current, 'view-clients') || getAccess(Auth, Current, 'manage-clients') || this.manageClients);
-        },
-        
-        get viewClientsFull() {
-            return (getAccess(Auth, Current, 'view-clients') || getAccess(Auth, Current, 'manage-clients') || this.manageClients) && this.adminFull;
+            return getAccess(Auth, Current, 'view-clients') || getAccess(Auth, Current, 'manage-clients') || this.manageClients;
         },
 
         get viewUsers() {
@@ -69,11 +55,11 @@ function getAccessObject(Auth, Current) {
         },
 
         get viewEvents() {
-            return (getAccess(Auth, Current, 'view-events') || getAccess(Auth, Current, 'manage-events') || this.manageClients) && this.adminFull;
+            return getAccess(Auth, Current, 'view-events') || getAccess(Auth, Current, 'manage-events') || this.manageClients;
         },
 
         get viewIdentityProviders() {
-            return (getAccess(Auth, Current, 'view-identity-providers') || getAccess(Auth, Current, 'manage-identity-providers') || this.manageIdentityProviders) && this.adminFull;
+            return getAccess(Auth, Current, 'view-identity-providers') || getAccess(Auth, Current, 'manage-identity-providers') || this.manageIdentityProviders;
         },
 
         get viewAuthorization() {
@@ -82,10 +68,6 @@ function getAccessObject(Auth, Current) {
 
         get manageRealm() {
             return getAccess(Auth, Current, 'manage-realm');
-        },
-        
-        get manageRealmFull() {
-            return getAccess(Auth, Current, 'manage-realm') && this.adminFull;
         },
 
         get manageClients() {

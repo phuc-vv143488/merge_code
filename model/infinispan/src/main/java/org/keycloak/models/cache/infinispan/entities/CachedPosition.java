@@ -32,7 +32,6 @@ public class CachedPosition extends AbstractRevisioned implements InRealm {
     private final Date validDateStart;
     private final Date validDateEnd;
     private final Date createDate;
-    private final Long vhrId;
 
     private final LazyLoader<PositionModel, MultivaluedHashMap<String, String>> attributes;
     private final LazyLoader<PositionModel, Set<String>> roleMappings;
@@ -51,7 +50,7 @@ public class CachedPosition extends AbstractRevisioned implements InRealm {
         this.validDateStart = position.getValidDateStart();
         this.validDateEnd = position.getValidDateEnd();
         this.createDate = position.getCreateDate();
-        this.vhrId = position.getVhrId();
+
         this.attributes = new DefaultLazyLoader<>(source -> new MultivaluedHashMap<>(source.getAttributes()), MultivaluedHashMap::new);
         this.roleMappings = new DefaultLazyLoader<>(source -> source.getRoleMappings().stream().map(RoleModel::getId).collect(Collectors.toSet()), Collections::emptySet);
     }
@@ -112,11 +111,7 @@ public class CachedPosition extends AbstractRevisioned implements InRealm {
         return validDateEnd;
     }
 
-    public Long getVhrId() {
-		return vhrId;
-	}
-
-	public Date getCreateDate() {
+    public Date getCreateDate() {
         return createDate;
     }
 }

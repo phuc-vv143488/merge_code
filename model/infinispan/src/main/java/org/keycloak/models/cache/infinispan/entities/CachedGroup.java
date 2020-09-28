@@ -38,14 +38,12 @@ public class CachedGroup extends AbstractRevisioned implements InRealm {
     private final String realm;
     private final String name;
     private final String parentId;
-    private final String code;
     private final LazyLoader<GroupModel, MultivaluedHashMap<String, String>> attributes;
     private final LazyLoader<GroupModel, Set<String>> roleMappings;
     private final LazyLoader<GroupModel, Set<String>> subGroups;
 
-    public CachedGroup(Long revision, RealmModel realm, GroupModel group, String code) {
-    	super(revision, group.getId());
-        this.code = code ;
+    public CachedGroup(Long revision, RealmModel realm, GroupModel group) {
+        super(revision, group.getId());
         this.realm = realm.getId();
         this.name = group.getName();
         this.parentId = group.getParentId();
@@ -80,9 +78,5 @@ public class CachedGroup extends AbstractRevisioned implements InRealm {
 
     public Set<String> getSubGroups(Supplier<GroupModel> group) {
         return subGroups.get(group);
-    }
-    
-    public String getCode() {
-    	return this.code;
     }
 }

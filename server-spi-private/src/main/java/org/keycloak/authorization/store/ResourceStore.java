@@ -174,7 +174,4 @@ public interface ResourceStore {
     List<Resource> findByTypeInstance(String type, String resourceServerId);
 
     void findByTypeInstance(String type, String resourceServerId, Consumer<Resource> consumer);
-    
-    //domainData
-    String getDomain(String userId, String roleId);
 }

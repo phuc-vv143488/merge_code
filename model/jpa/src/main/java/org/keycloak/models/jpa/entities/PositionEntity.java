@@ -19,9 +19,7 @@ import java.util.Date;
         @NamedQuery(name="checkByName", query="select 1 from PositionEntity u where u.realm.id = :realm and u.posName = :searchName ") ,
         @NamedQuery(name="checkByCode", query="select 1 from PositionEntity u where u.realm.id = :realm and u.posCode = :searchCode "),
         @NamedQuery(name="getPositionCount", query="select count(u) from PositionEntity u where u.realm.id = :realm"),
-        @NamedQuery(name="getPositionByUser", query="select p.posId from PositionEntity p join UserEntity u on p.posId = u.positionId where u.realmId = :realmId and u.id = :userId and p.posName like concat('%',:posName,'%')"),
-        @NamedQuery(name="getPositionByVhrId", query="select p.posId from PositionEntity p where p.vhrId = :vhrId"),
-        @NamedQuery(name="getPositionByPosCode", query="select p.posId from PositionEntity p where p.posCode = :posCode")
+        @NamedQuery(name="getPositionByUser", query="select p.posId from PositionEntity p join UserEntity u on p.posId = u.positionId where u.realmId = :realmId and u.id = :userId and p.posName like concat('%',:posName,'%')")
 })
 @Entity
 @Table(name="KEYCLOAK_POSITION",
@@ -80,10 +78,6 @@ public class PositionEntity {
 
     @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true, mappedBy="position")
     protected Collection<PositionAttributeEntity> attributes = new ArrayList<PositionAttributeEntity>();
-    
-    
-    @Column(name = "VHR_ID")
-    private Long vhrId;
 
     public String getPosId() {
         return posId;
@@ -100,14 +94,6 @@ public class PositionEntity {
     public void setPosCode(String posCode) {
         this.posCode = posCode;
     }
-
-    public Long getVhrId() {
-		return vhrId;
-	}
-
-	public void setVhrId(Long vhrId) {
-		this.vhrId = vhrId;
-	}
 
     public String getPosName() {
         return posName;

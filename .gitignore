@@ -72,6 +72,3 @@ target
 # testsuite #
 #############
 *offline-token.txt
-/service/
-/.metadata/
-/.travis/

@@ -18,7 +18,6 @@
 package org.keycloak.services.resources.admin;
 
 import org.apache.commons.lang.StringUtils;
-import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import javax.ws.rs.NotFoundException;
 import org.keycloak.events.admin.OperationType;
@@ -41,7 +40,6 @@ import org.keycloak.services.ErrorResponse;
 import org.keycloak.services.resources.admin.permissions.AdminPermissionEvaluator;
 import org.keycloak.services.resources.admin.permissions.AdminPermissionManagement;
 import org.keycloak.services.resources.admin.permissions.AdminPermissions;
-
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
@@ -70,7 +68,6 @@ import java.util.stream.Collectors;
  * @version $Revision: 1 $
  */
 public class RoleContainerResource extends RoleResource {
-	private final static Logger logger = Logger.getLogger(RoleContainerResource.class);
     private final RealmModel realm;
     protected AdminPermissionEvaluator auth;
 
@@ -101,16 +98,14 @@ public class RoleContainerResource extends RoleResource {
     public List<RoleRepresentation> getRoles(@QueryParam("search") @DefaultValue("") String search,
                                              @QueryParam("first") Integer firstResult,
                                              @QueryParam("max") Integer maxResults,
-                                             @QueryParam("isCompose") @DefaultValue("false") boolean isCompose,
                                              @QueryParam("briefRepresentation") @DefaultValue("true") boolean briefRepresentation) {
-    	logger.info("isCompose:"+isCompose);
         auth.roles().requireList(roleContainer);
 
         Set<RoleModel> roleModels = new HashSet<RoleModel>();
 
-        if(search != null && search.trim().length() > 0 && !isCompose) {
+        if(search != null && search.trim().length() > 0) {
             roleModels = roleContainer.searchForRoles(search, firstResult, maxResults);
-        } else if (!Objects.isNull(firstResult) && !Objects.isNull(maxResults) && !isCompose) {
+        } else if (!Objects.isNull(firstResult) && !Objects.isNull(maxResults)) {
             roleModels = roleContainer.getRoles(firstResult, maxResults);
         } else {
             roleModels = roleContainer.getRoles();
@@ -118,14 +113,11 @@ public class RoleContainerResource extends RoleResource {
 
         List<RoleRepresentation> roles = new ArrayList<RoleRepresentation>();
         for (RoleModel roleModel : roleModels) {
-        	if (isCompose && !roleModel.isComposite()) {
-        		continue;
-        	}
-        	if(briefRepresentation) {
-        		roles.add(ModelToRepresentation.toBriefRepresentation(roleModel));  
-        	} else {
-        		roles.add(ModelToRepresentation.toRepresentation(roleModel));               
-        	}
+            if(briefRepresentation) {
+                roles.add(ModelToRepresentation.toBriefRepresentation(roleModel));  
+            } else {
+                roles.add(ModelToRepresentation.toRepresentation(roleModel));               
+            }
         }
         return roles;
     }
@@ -185,13 +177,6 @@ public class RoleContainerResource extends RoleResource {
 
         return getRole(roleModel);
     }
-    
-    public boolean haveRole(String roleName) {
-    	RoleModel roleModel = roleContainer.getRole(roleName);
-    	if (roleModel == null) return false;
-    	return true;
-    }
-    
 
     /**
      * Delete a role by name

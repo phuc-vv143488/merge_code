@@ -459,7 +459,4 @@ public interface ServicesLogger extends BasicLogger {
     @Message(id=104, value="Not creating user %s. It already exists.")
     void notCreatingExistingUser(String userName);
 
-    @LogMessage(level = ERROR)
-    @Message(id=105, value="Failed to load 'keycloak-sync-user.json'")
-    void failedToLoadVhrUsers(@Cause Throwable t);
 }

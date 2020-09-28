@@ -825,11 +825,6 @@ public class StoreFactoryCacheSession implements CachedStoreFactoryProvider {
             }
         }
 
-		@Override
-		public String getDomain(String userId, String roleId) {
-			return getResourceStoreDelegate().getDomain(userId, roleId);
-		}
-
     }
 
     protected class PolicyCache implements PolicyStore {
@@ -1046,16 +1041,6 @@ public class StoreFactoryCacheSession implements CachedStoreFactoryProvider {
                 return policies.stream().map(resourceId -> (R) findById(resourceId, resourceServerId)).collect(Collectors.toList());
             }
         }
-
-		@Override
-		public List<Policy> findPolicyByConfig(String value) {
-			return getPolicyStoreDelegate().findPolicyByConfig(value);
-		}
-
-		@Override
-		public List<Policy> findByAssociatedPolicy(String id) {
-			return getPolicyStoreDelegate().findByAssociatedPolicy(id);
-		}
     }
 
     protected class PermissionTicketCache implements PermissionTicketStore {

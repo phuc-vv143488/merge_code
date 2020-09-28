@@ -30,7 +30,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.TypedQuery;
 
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -464,14 +463,8 @@ public class JpaRealmProvider implements RealmProvider {
                         Collectors.toList(), Collections::unmodifiableList));
     }
 
-    
     @Override
     public List<GroupModel> getTopLevelGroups(RealmModel realm) {
-    	return getTopLevelGroups(realm, false);
-    }
-    
-    @Override
-    public List<GroupModel> getTopLevelGroups(RealmModel realm, Boolean domain) {
         RealmEntity ref = em.getReference(RealmEntity.class, realm.getId());
 
         return ref.getGroups().stream()
@@ -484,23 +477,11 @@ public class JpaRealmProvider implements RealmProvider {
 
     @Override
     public List<GroupModel> getTopLevelGroups(RealmModel realm, Integer first, Integer max) {
-        return getTopLevelGroups(realm,first,max,false);
-    }
-    
-    @Override
-    public List<GroupModel> getTopLevelGroups(RealmModel realm, Integer first, Integer max, Boolean domain) {
-    	String query="";
-    	if (domain) {
-    		query = "getTopLevelDomainIds";
-    	}else {
-    		query = "getTopLevelGroupIds";
-    	}
-        List<String> groupIds =  em.createNamedQuery(query, String.class)
+        List<String> groupIds =  em.createNamedQuery("getTopLevelGroupIds", String.class)
                 .setParameter("realm", realm.getId())
                 .setFirstResult(first)
                     .setMaxResults(max)
                     .getResultList();
-        logger.info(query+":"+groupIds.size());
         List<GroupModel> list = new ArrayList<>();
         if(Objects.nonNull(groupIds) && !groupIds.isEmpty()) {
             for (String id : groupIds) {
@@ -510,7 +491,7 @@ public class JpaRealmProvider implements RealmProvider {
         }
 
         list.sort(Comparator.comparing(GroupModel::getName));
-        logger.info("then:"+list.size());
+
         return Collections.unmodifiableList(list);
     }
 
@@ -560,40 +541,19 @@ public class JpaRealmProvider implements RealmProvider {
     }
 
     @Override
-    public GroupModel createGroup(RealmModel realm, String name, String code) {
-        String id = KeycloakModelUtils.generateId();
-        return createGroup(realm, id, name,code);
-    }
-    
-    @Override
-    public GroupModel createGroup(RealmModel realm, String name, String code, Boolean domain) {
-        String id = KeycloakModelUtils.generateId();
-        return createGroup(realm, id, name,code, domain);
-    }
-    
-    @Override
     public GroupModel createGroup(RealmModel realm, String name) {
         String id = KeycloakModelUtils.generateId();
-        return createGroup(realm, id, name,"");
+        return createGroup(realm, id, name);
     }
 
     @Override
-    public GroupModel createGroup(RealmModel realm, String id, String name, String code) {
-        return createGroup(realm,id,name,code,false);
-    }
-    
-    public GroupModel createGroup(RealmModel realm, String id, String name, String code, Boolean domain) {
-        if (id == null) {
-        	id = KeycloakModelUtils.generateId();
-        }
+    public GroupModel createGroup(RealmModel realm, String id, String name) {
+        if (id == null) id = KeycloakModelUtils.generateId();
         GroupEntity groupEntity = new GroupEntity();
         groupEntity.setId(id);
         groupEntity.setName(name);
-        groupEntity.setCode(code);
-        groupEntity.setDomain(domain);
         RealmEntity realmEntity = em.getReference(RealmEntity.class, realm.getId());
         groupEntity.setRealm(realmEntity);
-        logger.info("createGroup id:"+id);
         em.persist(groupEntity);
         em.flush();
         realmEntity.getGroups().add(groupEntity);
@@ -767,15 +727,7 @@ public class JpaRealmProvider implements RealmProvider {
 
     @Override
     public List<GroupModel> searchForGroupByName(RealmModel realm, String search, Integer first, Integer max) {
-    	return searchForGroupByName(realm,search,first,max,false);
-    }
-    
-    @Override
-    public List<GroupModel> searchForGroupByName(RealmModel realm, String search, Integer first, Integer max, Boolean domain) {
-    	String queryStr ="";
-    	if(domain) queryStr ="getDomainIdsByNameContaining" ;
-    	else queryStr = "getGroupIdsByNameContaining";	
-        TypedQuery<String> query = em.createNamedQuery(queryStr, String.class)
+        TypedQuery<String> query = em.createNamedQuery("getGroupIdsByNameContaining", String.class)
                 .setParameter("realm", realm.getId())
                 .setParameter("search", search);
         if(Objects.nonNull(first) && Objects.nonNull(max)) {
@@ -884,12 +836,6 @@ public class JpaRealmProvider implements RealmProvider {
         } else {
             positionEntity.setPosId(rep.getPosId());
         }
-        
-        if (rep.getVhrId() == null) {
-        	positionEntity.setVhrId(0L);
-        } else {
-        	positionEntity.setVhrId(rep.getVhrId());
-        }
         positionEntity.setPosName(rep.getPosName());
         positionEntity.setPosCode(rep.getPosCode());
         positionEntity.setDescription(rep.getDescription());
@@ -901,7 +847,6 @@ public class JpaRealmProvider implements RealmProvider {
         positionEntity.setValidDateStart(rep.getValidDateStart());
         positionEntity.setValidDateEnd(rep.getValidDateEnd());
         positionEntity.setCreateDate(new Date());
-        
         System.out.println(positionEntity.getCreateDate());
 
         RealmEntity realmEntity = em.getReference(RealmEntity.class, realm.getId());
@@ -919,12 +864,9 @@ public class JpaRealmProvider implements RealmProvider {
         TypedQuery<String> query = em.createNamedQuery("getPositionIdsByNameContaining", String.class)
                 .setParameter("realm", realm.getId())
                 .setParameter("search", search);
-        if(Objects.nonNull(first)) {
-            query= query.setFirstResult(first);
+        if(Objects.nonNull(first) && Objects.nonNull(max)) {
+            query= query.setFirstResult(first).setMaxResults(max);
         }
-		if (Objects.nonNull(max)) {
-			query = query.setMaxResults(max);
-		}
         List<String> positions =  query.getResultList();
         if (Objects.isNull(positions)) return Collections.EMPTY_LIST;
         List<PositionModel> list = new ArrayList<>();
@@ -945,9 +887,12 @@ public class JpaRealmProvider implements RealmProvider {
                 .setParameter("realm", realm.getId())
                 .setParameter("searchName", searchName)
                 .setParameter("searchCode", searchCode);
-        if(Objects.nonNull(first) && Objects.nonNull(max)) {
-            query= query.setFirstResult(first).setMaxResults(max);
+        if(Objects.nonNull(first)) {
+            query= query.setFirstResult(first);
         }
+		if (Objects.nonNull(max)) {
+			query = query.setMaxResults(max);
+		}
         List<String> positions =  query.getResultList();
         if (Objects.isNull(positions)) return Collections.EMPTY_LIST;
         List<PositionModel> list = new ArrayList<>();
@@ -1043,99 +988,5 @@ public class JpaRealmProvider implements RealmProvider {
                         Collectors.toList(), Collections::unmodifiableList));
     }
     // SP_POSITION
-
-	@Override
-	public String getPositionByVhrId(Long vhrId, RealmModel realm) {
-		try {
-			TypedQuery<String> query = em.createNamedQuery("getPositionByVhrId", String.class);
-			query.setParameter("vhrId", vhrId);
-			return query.getSingleResult();
-		} catch (Exception ex) {
-			return null;
-		}
-	}
-
-	@Override
-	public Long getSyncInformationByTaskName(String taskName) {
-		try {
-			TypedQuery<Long> query = em.createNamedQuery("getSyncInformationByTaskName", Long.class);
-			query.setParameter("taskName", taskName);
-			List<Long> result = query.getResultList();
-			if (result != null && !result.isEmpty()) {
-				return result.get(0);
-			}
-			return null;
-		} catch (Exception ex) {
-			logger.error(ex);
-			return null;
-		}
-	}
-
-	@Override
-	public void addSyncInformation(RealmModel realm, String taskName, Long totalSync, Long totalError,
-			Timestamp startTime, Timestamp endTime) {
-		SyncInformationEntity entity = new SyncInformationEntity();
-		entity.setCreatedDate(startTime.getTime());
-		entity.setStartTime(startTime);
-		entity.setEndTime(endTime);
-		entity.setRealm(realm.getName());
-		entity.setTaskName(taskName);
-		entity.setTotalSync(totalSync);
-		entity.setTotalError(totalError);
-		em.persist(entity);
-		em.flush();
-	}
-
-	@Override
-	public String getGroupByVhrId(RealmModel realm, Long vhrId) {
-		try {
-			TypedQuery<String> query = em.createNamedQuery("getGroupByVhrId", String.class);
-			query.setParameter("vhrId", vhrId);
-			return query.getSingleResult();
-		} catch (Exception ex) {
-			return null;
-		}
-	}
-
-	@Override
-	public GroupModel getGroupByCode(RealmModel realm, String code) {
-		try {
-			TypedQuery<String> query = em.createNamedQuery("getGroupByDeptCode", String.class);
-			query.setParameter("deptCode", code);
-			String id = query.getSingleResult();
-			if (id != null) {
-				GroupEntity entity = em.find(GroupEntity.class, id);
-				if (entity != null) {
-					GroupAdapter adapter = new GroupAdapter(realm, em, entity);
-					return adapter;
-				}
-
-			}
-			return null;
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return null;
-		}
-	}
-
-	@Override
-	public PositionModel getPositionByCode(RealmModel realm, String code) {
-		try {
-			TypedQuery<String> query = em.createNamedQuery("getPositionByPosCode", String.class);
-			query.setParameter("posCode", code);
-			String id = query.getSingleResult();
-			if (id != null) {
-				PositionEntity entity = em.find(PositionEntity.class, id);
-				if (entity != null) {
-					PositionAdapter adapter = new PositionAdapter(realm, em, entity);
-					return adapter;
-				}
-			}
-			return null;
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return null;
-		}
-	}
 
 }

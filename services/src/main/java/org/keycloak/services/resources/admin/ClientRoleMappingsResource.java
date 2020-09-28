@@ -28,7 +28,6 @@ import org.keycloak.models.ModelException;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.RoleMapperModel;
 import org.keycloak.models.RoleModel;
-import org.keycloak.models.UserModel;
 import org.keycloak.models.utils.ModelToRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.services.ErrorResponseException;
@@ -38,7 +37,6 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -165,46 +163,9 @@ public class ClientRoleMappingsResource {
      *
      * @param roles
      */
-    @Path("domain/{domain}")
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    public void addClientRoleMappingWithParam(@PathParam("domain") String domain,List<RoleRepresentation> roles) {
-    	logger.info("addClientRoleMappingWithDomain:"+domain);
-        managePermission.require();
-
-        for (RoleRepresentation role : roles) {
-            RoleModel roleModel = client.getRole(role.getName());
-            if (roleModel == null || !roleModel.getId().equals(role.getId())) {
-                throw new NotFoundException("Role not found");
-            }
-            String emailTmp=null;
-            
-            //end build domain
-            
-            if (user instanceof UserModel ) {
-            	emailTmp = ((UserModel) user).getEmail();
-            	((UserModel) user).setEmail(domain);
-            }
-            auth.roles().requireMapRole(roleModel);
-            user.grantRole(roleModel);
-            if (user instanceof UserModel ) {
-            	((UserModel) user).setEmail(emailTmp);
-            }
-        }
-        adminEvent.operation(OperationType.CREATE).resourcePath(uriInfo).representation(roles).success();
-
-    }
-    
-    /**
-     * Add client-level roles to the user role mapping
-     *
-     * @param roles
-     */
-    @Path("domain")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public void addClientRoleMapping(List<RoleRepresentation> roles) {
-    	logger.info("addClientRoleMapping");
         managePermission.require();
 
         for (RoleRepresentation role : roles) {
@@ -212,21 +173,13 @@ public class ClientRoleMappingsResource {
             if (roleModel == null || !roleModel.getId().equals(role.getId())) {
                 throw new NotFoundException("Role not found");
             }
-            String emailTmp=null;
-            if (user instanceof UserModel ) {
-            	emailTmp = ((UserModel) user).getEmail();
-            	((UserModel) user).setEmail(null);
-            }
             auth.roles().requireMapRole(roleModel);
             user.grantRole(roleModel);
-            if (user instanceof UserModel ) {
-            	((UserModel) user).setEmail(emailTmp);
-            }
         }
         adminEvent.operation(OperationType.CREATE).resourcePath(uriInfo).representation(roles).success();
 
     }
-    
+
     /**
          * Delete client-level roles from user role mapping
          *

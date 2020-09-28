@@ -335,36 +335,4 @@ public class JPAPolicyStore implements PolicyStore {
         }
         return list;
     }
-	@Override
-	public List<Policy> findPolicyByConfig(String value) {
-		TypedQuery<String> query = entityManager.createNamedQuery("findPolicyByConfig", String.class);
-		query.setFlushMode(FlushModeType.COMMIT);
-		query.setParameter("value", value);
-		List<String> result = query.getResultList();
-		List<Policy> list = new LinkedList<>();
-		for (String id : result) {
-			Policy policy = provider.getStoreFactory().getPolicyStore().findById(id, null);
-			if (Objects.nonNull(policy)) {
-				list.add(policy);
-			}
-		}
-		return list;
-
-	}
-
-	@Override
-	public List<Policy> findByAssociatedPolicy(String id) {
-		TypedQuery<String> query = entityManager.createNamedQuery("findPolicyByAssociatedPolicy", String.class);
-		query.setFlushMode(FlushModeType.COMMIT);
-		query.setParameter("id", id);
-		List<String> result = query.getResultList();
-		List<Policy> list = new LinkedList<>();
-		for (String idPolicy : result) {
-			Policy policy = provider.getStoreFactory().getPolicyStore().findById(idPolicy, null);
-			if (Objects.nonNull(policy)) {
-				list.add(policy);
-			}
-		}
-		return list;
-	}
 }

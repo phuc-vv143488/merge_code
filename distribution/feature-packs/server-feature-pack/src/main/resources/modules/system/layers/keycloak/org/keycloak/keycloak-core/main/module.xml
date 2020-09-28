@@ -30,6 +30,5 @@
         <module name="javax.api"/>
         <module name="javax.activation.api"/>
         <module name="sun.jdk" optional="true" />
-        <module name="org.apache.commons.codec"/>
     </dependencies>
 </module>

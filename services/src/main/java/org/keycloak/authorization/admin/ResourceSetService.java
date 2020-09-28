@@ -63,14 +63,12 @@ import org.keycloak.models.Constants;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
-import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.authorization.PolicyRepresentation;
 import org.keycloak.representations.idm.authorization.ResourceOwnerRepresentation;
 import org.keycloak.representations.idm.authorization.ResourceRepresentation;
 import org.keycloak.representations.idm.authorization.ScopeRepresentation;
 import org.keycloak.services.ErrorResponseException;
 import org.keycloak.services.resources.admin.AdminEventBuilder;
-import org.keycloak.services.resources.admin.RoleContainerResource;
 import org.keycloak.services.resources.admin.permissions.AdminPermissionEvaluator;
 
 /**
@@ -84,8 +82,7 @@ public class ResourceSetService {
     private final AdminEventBuilder adminEvent;
     private KeycloakSession session;
     private ResourceServer resourceServer;
-    private final static String MENU = "menu";
-    private final static String MENU_SIGN = "*";
+    private final String MENU = "menu";
     protected static final Logger logger = Logger.getLogger(ResourceSetService.class);
     public ResourceSetService(KeycloakSession session, ResourceServer resourceServer, AuthorizationProvider authorization, AdminPermissionEvaluator auth, AdminEventBuilder adminEvent) {
         this.session = session;
@@ -100,7 +97,6 @@ public class ResourceSetService {
     @Consumes("application/json")
     @Produces("application/json")
     public Response createPost(ResourceRepresentation resource) {
-    	logger.info("createPost function()");
         if (resource == null) {
             return Response.status(Status.BAD_REQUEST).build();
         }
@@ -108,65 +104,7 @@ public class ResourceSetService {
         ResourceRepresentation newResource = create(resource);
 
         audit(resource, resource.getId(), OperationType.CREATE);
-        
-        //huynq79
-        //auto generate code for roles,policies and permissions
-        RealmModel realm = authorization.getKeycloakSession().getContext().getRealm();
-        ClientModel client = realm.getClientById(resourceServer.getId());
-        RoleContainerResource autoGenRole = new RoleContainerResource(session, session.getContext().getUri(), realm, auth, client, adminEvent);
-        PolicyService autoGenPol = new PolicyService(this.resourceServer, this.authorization, this.auth, adminEvent);
-        //huynq79 
-        //auto gen roles,policies and permissions for menu
-        if (resource.getType().equalsIgnoreCase(MENU)) {
-        	//gen roles
-        	if (!autoGenRole.haveRole(MENU_SIGN+resource.getName())) 
-        		autoGenRole.createRole(new RoleRepresentation(MENU_SIGN+resource.getName(),null,false));
-        	
-        	//gen policies
-        	String payload;
-        	Policy policy = authorization.getStoreFactory().getPolicyStore().findByName(MENU_SIGN+resource.getName(), this.resourceServer.getId());
-        	if (policy == null) {
-	        	RoleRepresentation roleCreated = autoGenRole.getRole(MENU_SIGN+resource.getName());
-	        	payload = "{\"type\":\"role\",\"logic\":\"POSITIVE\",\"decisionStrategy\":\"UNANIMOUS\",\"name\":\""+MENU_SIGN+resource.getName()+"\",\"roles\":[{\"id\":\""+roleCreated.getId()+"\"}]}";
-	        	autoGenPol = (PolicyService) autoGenPol.getResource("role");
-	        	autoGenPol.create(payload, session);
-        	}
-        	
-        	//gen permissions
-        	Policy permission = authorization.getStoreFactory().getPolicyStore().findByName("."+MENU_SIGN+resource.getName(), this.resourceServer.getId());
-        	if (permission == null) {
-	        	Policy model = authorization.getStoreFactory().getPolicyStore().findByName(MENU_SIGN+resource.getName(), this.resourceServer.getId());
-	        	payload = "{\"type\":\"resource\",\"logic\":\"POSITIVE\",\"decisionStrategy\":\"UNANIMOUS\",\"name\":\""+"."+MENU_SIGN+resource.getName()+"\",\"resources\":[\""+resource.getId()+"\"],\"policies\":[\""+model.getId()+"\"]}";
-	        	autoGenPol = (PolicyService) autoGenPol.getResource("resource");
-	        	autoGenPol.create(payload, session);
-        	}
-        	
-        }else {
-	        for (ScopeRepresentation scope:resource.getScopes()) {
-	        	//gen roles
-	        	if (!autoGenRole.haveRole(resource.getName()+" "+scope.getName())) 
-	        		autoGenRole.createRole(new RoleRepresentation(resource.getName()+" "+scope.getName(),null,false));
-	        	
-	        	//gen policies
-	        	String payload;
-	        	Policy policy = authorization.getStoreFactory().getPolicyStore().findByName(resource.getName()+" "+scope.getName(), this.resourceServer.getId());
-	        	if (policy == null) {
-		        	RoleRepresentation roleCreated = autoGenRole.getRole(resource.getName()+" "+scope.getName());
-		        	payload = "{\"type\":\"role\",\"logic\":\"POSITIVE\",\"decisionStrategy\":\"UNANIMOUS\",\"name\":\""+resource.getName()+" "+scope.getName()+"\",\"roles\":[{\"id\":\""+roleCreated.getId()+"\"}]}";
-		        	autoGenPol = (PolicyService) autoGenPol.getResource("role");
-		        	autoGenPol.create(payload, session);
-	        	}
-	        	
-	        	//gen permissions
-	        	Policy permission = authorization.getStoreFactory().getPolicyStore().findByName("."+resource.getName()+" "+scope.getName(), this.resourceServer.getId());
-	        	if (permission == null) {
-		        	Policy model = authorization.getStoreFactory().getPolicyStore().findByName(resource.getName()+" "+scope.getName(), this.resourceServer.getId());
-		        	payload = "{\"type\":\"scope\",\"logic\":\"POSITIVE\",\"decisionStrategy\":\"UNANIMOUS\",\"name\":\""+"."+resource.getName()+" "+scope.getName()+"\",\"resources\":[\""+resource.getId()+"\"],\"scopes\":[\""+scope.getId()+"\"],\"policies\":[\""+model.getId()+"\"]}";
-		        	autoGenPol = (PolicyService) autoGenPol.getResource("scope");
-		        	autoGenPol.create(payload, session);
-	        	}
-	        }
-        }
+
         return Response.status(Status.CREATED).entity(newResource).build();
     }
 
@@ -210,129 +148,29 @@ public class ResourceSetService {
         if (model == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        //huynq79
-        
-        if (resource.getName().equalsIgnoreCase(model.getName())) {
-	        //auto update code for roles,policies and permission
-	        RealmModel realm = authorization.getKeycloakSession().getContext().getRealm();
-	        ClientModel client = realm.getClientById(resourceServer.getId());
-	        RoleContainerResource autoGenRole = new RoleContainerResource(session, session.getContext().getUri(), realm, auth, client, adminEvent);
-	        PolicyService autoGenPol = new PolicyService(this.resourceServer, this.authorization, this.auth, adminEvent);
-        
-	        //if some scopes added
-	        for (ScopeRepresentation scope:resource.getScopes()) {
-	        		//new scope added
-	        		//gen roles
-	            	if (!autoGenRole.haveRole(resource.getName()+" "+scope.getName())) {
-	            		autoGenRole.createRole(new RoleRepresentation(resource.getName()+" "+scope.getName(),null,false));
-	            	}
-	            	
-	            	//gen policies
-	            	String payload;
-	            	Policy policy = authorization.getStoreFactory().getPolicyStore().findByName(resource.getName()+" "+scope.getName(), this.resourceServer.getId());
-	            	if (policy == null) {
-	    	        	RoleRepresentation roleCreated = autoGenRole.getRole(resource.getName()+" "+scope.getName());
-	    	        	payload = "{\"type\":\"role\",\"logic\":\"POSITIVE\",\"decisionStrategy\":\"UNANIMOUS\",\"name\":\""+resource.getName()+" "+scope.getName()+"\",\"roles\":[{\"id\":\""+roleCreated.getId()+"\"}]}";
-	    	        	autoGenPol = (PolicyService) autoGenPol.getResource("role");
-	    	        	autoGenPol.create(payload, session);
-	            	}
-	            	
-	            	//gen permissions
-	            	Policy permission = authorization.getStoreFactory().getPolicyStore().findByName("."+resource.getName()+" "+scope.getName(), this.resourceServer.getId());
-	            	if (permission == null) {
-	    	        	Policy mmodel = authorization.getStoreFactory().getPolicyStore().findByName(resource.getName()+" "+scope.getName(), this.resourceServer.getId());
-	    	        	payload = "{\"type\":\"scope\",\"logic\":\"POSITIVE\",\"decisionStrategy\":\"UNANIMOUS\",\"name\":\""+"."+resource.getName()+" "+scope.getName()+"\",\"resources\":[\""+resource.getId()+"\"],\"scopes\":[\""+scope.getId()+"\"],\"policies\":[\""+mmodel.getId()+"\"]}";
-	    	        	autoGenPol = (PolicyService) autoGenPol.getResource("scope");
-	    	        	autoGenPol.create(payload, session);
-	            	}
-	        }
-	        
-	        //if some scopes deleted
-	        for (Scope scope:model.getScopes()) {
-	        	boolean flag = false;
-	        	for(ScopeRepresentation mscope:resource.getScopes()) {
-	        		if(mscope.getName().equalsIgnoreCase(scope.getName())) {
-	        			flag = true;
-	        			break;
-	        		}
-	        	}
-	        	if (!flag) {
-	        		//delete permissions
-	        		Policy permission = authorization.getStoreFactory().getPolicyStore().findByName("."+model.getName()+" "+scope.getName(), this.resourceServer.getId());
-	            	if (permission != null) {
-	    	        	PolicyResourceService policyResourceService = (PolicyResourceService) autoGenPol.getResource(permission.getId());
-	    	        	policyResourceService.delete();
-	            	}
-	        		//delete policies
-	            	Policy policy = authorization.getStoreFactory().getPolicyStore().findByName(model.getName()+" "+scope.getName(), this.resourceServer.getId());
-	            	if (policy != null) {
-	    	        	PolicyResourceService policyResourceService = (PolicyResourceService) autoGenPol.getResource(policy.getId());
-	    	        	policyResourceService.delete();
-	            	}
-	            	//delete roles
-	            	if (autoGenRole.haveRole(model.getName()+" "+scope.getName())) {
-	            		autoGenRole.deleteRole(resource.getName()+" "+scope.getName());
-	            	}	
-	        	}
-        	}
-
-        }else {
-        	logger.info("change resource Name");
-        	delete(model.getId());
-        	createPost(resource);
-        }
 
         toModel(resource, resourceServer, authorization);
 
         audit(resource, OperationType.UPDATE);
+
         return Response.noContent().build();
     }
 
     @Path("{id}")
     @DELETE
     public Response delete(@PathParam("id") String id) {
-    	logger.info("delete function");
         requireManage();
         StoreFactory storeFactory = authorization.getStoreFactory();
         Resource resource = storeFactory.getResourceStore().findById(id, resourceServer.getId());
+
         if (resource == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        //huynq79
-        //auto delete code for roles and policies
-        RealmModel realm = authorization.getKeycloakSession().getContext().getRealm();
-        ClientModel client = realm.getClientById(resourceServer.getId());
-        RoleContainerResource autoGenRole = new RoleContainerResource(session, session.getContext().getUri(), realm, auth, client, adminEvent);
-        PolicyService autoGenPol = new PolicyService(this.resourceServer, this.authorization, this.auth, adminEvent);
-      //for menu
-        if(resource.getType().equalsIgnoreCase(MENU)) {
-        	//delete policies
-        	Policy policy = authorization.getStoreFactory().getPolicyStore().findByName(MENU_SIGN+resource.getName(), this.resourceServer.getId());
-        	if (policy != null) {
-	        	PolicyResourceService policyResourceService = (PolicyResourceService) autoGenPol.getResource(policy.getId());
-	        	policyResourceService.delete();
-        	}
-        	//delete roles
-        	if (autoGenRole.haveRole(MENU_SIGN+resource.getName())) {
-        		autoGenRole.deleteRole(resource.getName());
-        	}
-        }else {
-	        for (Scope scope:resource.getScopes()) {
-	        	//delete policies
-	        	Policy policy = authorization.getStoreFactory().getPolicyStore().findByName(resource.getName()+" "+scope.getName(), this.resourceServer.getId());
-	        	if (policy != null) {
-		        	PolicyResourceService policyResourceService = (PolicyResourceService) autoGenPol.getResource(policy.getId());
-		        	policyResourceService.delete();
-	        	}
-	        	//delete roles
-	        	if (autoGenRole.haveRole(resource.getName()+" "+scope.getName())) {
-	        		autoGenRole.deleteRole(resource.getName()+" "+scope.getName());
-	        	}
-	        }
-        }
+
         storeFactory.getResourceStore().delete(id);
 
         audit(toRepresentation(resource, resourceServer, authorization), OperationType.DELETE);
+
         return Response.noContent().build();
     }
 

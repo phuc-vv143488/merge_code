@@ -26,7 +26,6 @@ import org.keycloak.storage.UserStorageProviderModel;
 import org.keycloak.storage.client.ClientStorageProvider;
 import org.keycloak.storage.client.ClientStorageProviderModel;
 
-import java.sql.Timestamp;
 import java.util.*;
 
 /**
@@ -473,26 +472,18 @@ public interface RealmModel extends RoleContainerModel {
     String getDefaultLocale();
     void setDefaultLocale(String locale);
 
-    GroupModel createGroup(String name, String code);
-    GroupModel createGroup(String name, String code, Boolean domain);
     GroupModel createGroup(String name);
-    GroupModel createGroup(String id, String name, String code);
+    GroupModel createGroup(String id, String name);
 
     GroupModel getGroupById(String id);
     List<GroupModel> getGroups();
     Long getGroupsCount(Boolean onlyTopGroups);
     Long getGroupsCountByNameContaining(String search);
     List<GroupModel> getTopLevelGroups();
-    List<GroupModel> getTopLevelGroups(Boolean domain);
     List<GroupModel> getTopLevelGroups(Integer first, Integer max);
-    List<GroupModel> getTopLevelGroups(Integer first, Integer max, Boolean domain);
     List<GroupModel> searchForGroupByName(String search, Integer first, Integer max);
-    List<GroupModel> searchForGroupByName(String search, Integer first, Integer max, Boolean domain);
     boolean removeGroup(GroupModel group);
     void moveGroup(GroupModel group, GroupModel toParent);
-    GroupModel getGroupByCode(String code);
-    
-    String getGroupByVhrId(Long vhrId);
 
     List<ClientScopeModel> getClientScopes();
 
@@ -518,16 +509,10 @@ public interface RealmModel extends RoleContainerModel {
     List<Integer> checkPositionByNameAndCode(String searchName, String searchCode);
 
     PositionModel getPositionById(String id);
-    PositionModel getPositionByCode(String code);
 
     boolean removePosition(PositionModel position);
 
     List<PositionModel> getPositions();
-    
-    String getPositionByVhrId(Long vhrId);
     // SP_POSITION
-    
-    Long getSyncInformationByTaskName(String taskName);
-    void addSyncInformation(RealmModel realm, String taskName, Long totalSync, Long totalError,Timestamp startTime, Timestamp endTime); 
 
 }

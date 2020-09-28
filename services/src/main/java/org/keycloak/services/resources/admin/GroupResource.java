@@ -16,7 +16,6 @@
  */
 package org.keycloak.services.resources.admin;
 
-import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import javax.ws.rs.NotFoundException;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
@@ -35,7 +34,6 @@ import org.keycloak.services.ErrorResponse;
 import org.keycloak.services.resources.admin.permissions.AdminPermissionEvaluator;
 import org.keycloak.services.resources.admin.permissions.AdminPermissionManagement;
 import org.keycloak.services.resources.admin.permissions.AdminPermissions;
-
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -59,7 +57,6 @@ import java.util.Set;
  * @author Bill Burke
  */
 public class GroupResource {
-	private static final Logger logger = Logger.getLogger(GroupResource.class); 
 
     private final RealmModel realm;
     private final KeycloakSession session;
@@ -84,7 +81,6 @@ public class GroupResource {
     @NoCache
     @Produces(MediaType.APPLICATION_JSON)
     public GroupRepresentation getGroup() {
-    	logger.info("getGroup");
         this.auth.groups().requireView(group);
 
         GroupRepresentation rep = ModelToRepresentation.toGroupHierarchy(group, true);
@@ -142,15 +138,13 @@ public class GroupResource {
         Response.ResponseBuilder builder = Response.status(204);
         GroupModel child = null;
         if (rep.getId() != null) {
-        	logger.info("update group");
             child = realm.getGroupById(rep.getId());
             if (child == null) {
                 throw new NotFoundException("Could not find child by id");
             }
             adminEvent.operation(OperationType.UPDATE);
         } else {
-        	logger.info("create new group");
-            child = realm.createGroup(rep.getName(),rep.getCode(),rep.getDomain());
+            child = realm.createGroup(rep.getName());
             updateGroup(rep, child);
             URI uri = session.getContext().getUri().getBaseUriBuilder()
                                            .path(session.getContext().getUri().getMatchedURIs().get(2))
@@ -169,8 +163,7 @@ public class GroupResource {
 
     public static void updateGroup(GroupRepresentation rep, GroupModel model) {
         if (rep.getName() != null) model.setName(rep.getName());
-        if (rep.getCode() != null) model.setCode(rep.getCode());
-        
+
         if (rep.getAttributes() != null) {
             Set<String> attrsToRemove = new HashSet<>(model.getAttributes().keySet());
             attrsToRemove.removeAll(rep.getAttributes().keySet());

@@ -1,6 +1,6 @@
 module.controller('UserRoleMappingCtrl', function($scope, $http, $route, realm, user, client, Client, Notifications, RealmRoleMapping,
                                                   ClientRoleMapping, AvailableRealmRoleMapping, AvailableClientRoleMapping,
-                                                  CompositeRealmRoleMapping, CompositeClientRoleMapping,$q, Domains, GroupsCount, Group, GroupChildren, Notifications, $location, Dialog, ComponentUtils) {
+                                                  CompositeRealmRoleMapping, CompositeClientRoleMapping) {
     $scope.realm = realm;
     $scope.user = user;
     $scope.selectedRealmRoles = [];
@@ -65,23 +65,8 @@ module.controller('UserRoleMappingCtrl', function($scope, $http, $route, realm, 
     };
 
     $scope.addClientRole = function() {
-    	console.log($scope.domain.size);
-    	var domains = $scope.domain;
-    	console.log("domain:",domains);
-    	domains = Array.from(domains);
-    	console.log("domain2:",domains);
-    	
-    	var domain_str = "";
-    	for(i=0;i<domains.length;i++){
-    		if (domain_str=="")
-    			domain_str=domains[i];
-    		else
-    			domain_str+=":"+domains[i];
-    	}
-    	
-    	console.log("domain_str:"+domain_str);
         $scope.clientRolesToAdd = JSON.parse('[' + $scope.selectedClientRoles + ']');
-        $http.post(authUrl + '/admin/realms/' + realm.realm + '/users/' + user.id + '/role-mappings/clients/' + $scope.selectedClient.id+'/domain/'+domain_str,
+        $http.post(authUrl + '/admin/realms/' + realm.realm + '/users/' + user.id + '/role-mappings/clients/' + $scope.selectedClient.id,
                 $scope.clientRolesToAdd).then(function() {
                 $scope.clientMappings = ClientRoleMapping.query({realm : realm.realm, userId : user.id, client : $scope.selectedClient.id});
                 $scope.clientRoles = AvailableClientRoleMapping.query({realm : realm.realm, userId : user.id, client : $scope.selectedClient.id});
@@ -132,161 +117,6 @@ module.controller('UserRoleMappingCtrl', function($scope, $http, $route, realm, 
     };
 
     clientSelectControl($scope, $route.current.params.realm, Client);
-    
-    //add domain
-    $scope.domain = new Set();
-    $scope.groupList = [
-        {
-            "id" : "realm",
-            "name": "Domains",
-            "subGroups" : []
-        }
-    ];
-
-    $scope.searchCriteria = '';
-    $scope.currentPage = 1;
-    $scope.currentPageInput = $scope.currentPage;
-    $scope.pageSize = 20;
-    $scope.numberOfPages = 1;
-    $scope.tree = [];
-
-    var refreshGroups = function (search) {
-        console.log('refreshDomain');
-        $scope.currentPageInput = $scope.currentPage;
-
-        var first = ($scope.currentPage * $scope.pageSize) - $scope.pageSize;
-        console.log('first:' + first);
-        var queryParams = {
-            realm : realm.realm,
-            first : first,
-            max : $scope.pageSize
-        };
-        var countParams = {
-            realm : realm.realm,
-            top : 'true'
-        };
-
-        if(angular.isDefined(search) && search !== '') {
-            queryParams.search = search;
-            countParams.search = search;
-        }
-
-        var promiseGetGroups = $q.defer();
-        Domains.query(queryParams, function(entry) {
-            promiseGetGroups.resolve(entry);
-        }, function() {
-            promiseGetGroups.reject('Unable to fetch ' + queryParams);
-        });
-        promiseGetGroups.promise.then(function(groups) {
-        	console.log('Domains:'+groups);
-            $scope.groupList = [
-                {
-                    "id" : "realm",
-                    "name": "Domains",
-                    "subGroups": ComponentUtils.sortGroups('name', groups)
-                }
-            ];
-            console.log('DomainList:'+$scope.groupList);
-            if (angular.isDefined(search) && search !== '') {
-                // Add highlight for concrete text match
-                setTimeout(function () {
-                    document.querySelectorAll('span').forEach(function (element) {
-                        if (element.textContent.indexOf(search) != -1) {
-                            angular.element(element).addClass('highlight');
-                        }
-                    });
-                }, 500);
-            }
-        }, function (failed) {
-            Notifications.error(failed);
-        });
-
-        var promiseCount = $q.defer();
-        console.log('countParams: realm[' + countParams.realm);
-        GroupsCount.query(countParams, function(entry) {
-            promiseCount.resolve(entry);
-        }, function() {
-            promiseCount.reject('Unable to fetch ' + countParams);
-        });
-        promiseCount.promise.then(function(entry) {
-            if(angular.isDefined(entry.count) && entry.count > $scope.pageSize) {
-                $scope.numberOfPages = Math.ceil(entry.count/$scope.pageSize);
-            } else {
-                $scope.numberOfPages = 1;
-            }
-        }, function (failed) {
-            Notifications.error(failed);
-        });
-    };
-    refreshGroups();
-
-    $scope.$watch('currentPage', function(newValue, oldValue) {
-        if(parseInt(newValue, 10) !== oldValue) {
-            refreshGroups($scope.searchCriteria);
-        }
-    });
-
-    $scope.clearSearch = function() {
-        $scope.searchCriteria = '';
-        if (parseInt($scope.currentPage, 10) === 1) {
-            refreshGroups();
-        } else {
-            $scope.currentPage = 1;
-        }
-    };
-
-    $scope.searchGroup = function() {
-        if (parseInt($scope.currentPage, 10) === 1) {
-            refreshGroups($scope.searchCriteria);
-        } else {
-            $scope.currentPage = 1;
-        }
-    };
-    
-    $scope.isDisabled = function() {
-        if (!$scope.tree.currentNode) return true;
-        return $scope.tree.currentNode.id === 'realm';
-    };
-
-   
-    var isLeaf = function(node) {
-        return node.id !== "realm" && (!node.subGroups || node.subGroups.length === 0);
-    };
-
-    $scope.getGroupClass = function(node) {
-        if (node.id === "realm") {
-            return 'pficon pficon-users';
-        }
-        if (isLeaf(node)) {
-            return 'normal';
-        }
-        if (node.subGroups.length && node.collapsed) return 'collapsed';
-        if (node.subGroups.length && !node.collapsed) return 'expanded';
-        return 'collapsed';
-
-    };
-    $scope.selectCheck = function(node) {
-    	console.log("select check"+node.code);
-    	if (node.checkbox ) {
-            $scope.domain.delete(node.code);
-    	}else {
-    		$scope.domain.add(node.code);
-    	}
-
-        return undefined;
-    }
-    
-    $scope.getSelectedClass = function(node) {
-        if (node.selected) {
-            return 'selected';
-        } else if ($scope.cutNode && $scope.cutNode.id === node.id) {
-            return 'cut';
-        }
-        return undefined;
-    }
-
-
-    
 });
 
 module.controller('UserSessionsCtrl', function($scope, realm, user, sessions, UserSessions, UserLogout, UserSessionLogout, Notifications) {

@@ -32,7 +32,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import javax.management.relation.Role;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -44,15 +43,13 @@ import org.keycloak.OAuthErrorException;
 import org.keycloak.authorization.AuthorizationProvider;
 import org.keycloak.authorization.common.DefaultEvaluationContext;
 import org.keycloak.authorization.common.KeycloakIdentity;
-import org.keycloak.authorization.model.PermissionTicket;
-import org.keycloak.authorization.model.Policy;
 import org.keycloak.authorization.model.Resource;
 import org.keycloak.authorization.model.ResourceServer;
 import org.keycloak.authorization.model.Scope;
+import org.keycloak.authorization.model.PermissionTicket;
 import org.keycloak.authorization.permission.ResourcePermission;
 import org.keycloak.authorization.policy.evaluation.EvaluationContext;
 import org.keycloak.authorization.policy.evaluation.PermissionTicketAwareDecisionResultCollector;
-import org.keycloak.authorization.store.PolicyStore;
 import org.keycloak.authorization.store.ResourceServerStore;
 import org.keycloak.authorization.store.ResourceStore;
 import org.keycloak.authorization.store.ScopeStore;
@@ -66,7 +63,6 @@ import org.keycloak.models.ClientModel;
 import org.keycloak.models.ClientSessionContext;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
-import org.keycloak.models.RoleModel;
 import org.keycloak.models.UserSessionModel;
 import org.keycloak.models.UserSessionProvider;
 import org.keycloak.protocol.oidc.OIDCLoginProtocol;
@@ -87,7 +83,6 @@ import org.keycloak.services.Urls;
 import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.managers.AuthenticationSessionManager;
 import org.keycloak.services.resources.Cors;
-import org.keycloak.services.util.DefaultClientSessionContext;
 import org.keycloak.sessions.AuthenticationSessionModel;
 import org.keycloak.sessions.RootAuthenticationSessionModel;
 import org.keycloak.util.JsonSerialization;
@@ -317,38 +312,10 @@ public class AuthorizationTokenService {
         AccessToken rpt = responseBuilder.getAccessToken();
         Authorization authorization = new Authorization();
 
-		authorization.setPermissions(entitlements);
-		authorization.setUserName(
-				userSessionModel.getUser().getFirstName() + " " + userSessionModel.getUser().getLastName());
-		
-		// hunglm25
-		// domainData
-		PolicyStore policyStore = request.getAuthorization().getStoreFactory().getPolicyStore();
-		ResourceStore resourceStore = request.getAuthorization().getStoreFactory().getResourceStore();
-		String userId = userSessionModel.getUser().getId();
-		Set<RoleModel> userRole = userSessionModel.getUser().getClientRoleMappings(clientSessionCtx.getClientSession().getClient());
-		Map<String, String> roleMapDomain = new HashMap<String, String>();
-		for(RoleModel m : userRole ) {
-			String domain = resourceStore.getDomain(userId, m.getId());
-			List<RoleModel> roles = getChild(m);
-			for(RoleModel role : roles) {
-				List<Policy> polices = policyStore.findPolicyByConfig(role.getId());
-				for(Policy policy : polices) {
-					List<Policy> ps = policyStore.findByAssociatedPolicy(policy.getId());
-					for(Policy p : ps) {
-						for(Resource r : p.getResources()) {
-							roleMapDomain.put(r.getId(), domain);
-						}
-					}
-				}
-				
-			}
-		}
-		authorization.setDomainData(roleMapDomain);
-
-		// domainData
-
-		rpt.setAuthorization(authorization);
+        authorization.setPermissions(entitlements);
+        authorization.setUserName(userSessionModel.getUser().getFirstName() + " "+userSessionModel.getUser().getLastName());
+            
+        rpt.setAuthorization(authorization);
 
         RefreshToken refreshToken = responseBuilder.getRefreshToken();
 
@@ -359,37 +326,8 @@ public class AuthorizationTokenService {
             rpt.audience(targetClient.getClientId());
         }
 
-		return new AuthorizationResponse(responseBuilder.build(), isUpgraded(request, authorization));
-	}
-	
-	private List<RoleModel> getChild(RoleModel roleModel){
-		List<RoleModel> roleModels = new ArrayList<RoleModel>();
-			if(roleModel.isComposite()) {
-				for(RoleModel role : roleModel.getComposites())
-				{
-					roleModels.addAll(getChild(role));
-				}
-			}
-			else {
-				roleModels.add(roleModel);
-			}
-		return roleModels;
-	}
-	
-	private String getDomainForResource(List<Policy> policies, Map<String, String> roleMapDomain) {
-		for(Policy policy : policies) {
-			Map<String, String> config = policy.getConfig();
-			String data = config.get("roles");
-			String subString = data.substring(2, data.length() - 2);
-			String split = subString.split(",")[0];
-			String splitRole = split.split(":")[1];
-			String roleId = splitRole.substring(1, splitRole.length() - 1);
-			if(roleMapDomain.containsKey(roleId)) {
-				return roleMapDomain.get(roleId);
-			}
-		}
-		return null;
-	}
+        return new AuthorizationResponse(responseBuilder.build(), isUpgraded(request, authorization));
+    }
 
     private boolean isUpgraded(AuthorizationRequest request, Authorization authorization) {
         AccessToken previousRpt = request.getRpt();

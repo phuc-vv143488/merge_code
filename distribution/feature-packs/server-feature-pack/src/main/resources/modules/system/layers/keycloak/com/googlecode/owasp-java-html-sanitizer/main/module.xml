@@ -22,8 +22,5 @@
     
     <dependencies>
         <module name="com.google.guava"/>
-        <module name="com.googlecode.json-simple"/>
-        <module name="com.google.code.gson"/>
-        <module name="com.sun.jersey.jersey-client"/>
     </dependencies>
 </module>

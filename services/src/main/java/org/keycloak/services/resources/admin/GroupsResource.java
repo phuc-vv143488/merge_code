@@ -16,7 +16,6 @@
  */
 package org.keycloak.services.resources.admin;
 
-import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import javax.ws.rs.NotFoundException;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
@@ -29,7 +28,6 @@ import org.keycloak.models.utils.ModelToRepresentation;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.services.ErrorResponse;
 import org.keycloak.services.resources.admin.permissions.AdminPermissionEvaluator;
-
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -52,29 +50,18 @@ import java.util.Objects;
  * @author Bill Burke
  */
 public class GroupsResource {
-	private static final Logger logger = Logger.getLogger(GroupsResource.class);
+
     private final RealmModel realm;
     private final KeycloakSession session;
     private final AdminPermissionEvaluator auth;
     private final AdminEventBuilder adminEvent;
-    private Boolean domain;
 
     public GroupsResource(RealmModel realm, KeycloakSession session, AdminPermissionEvaluator auth, AdminEventBuilder adminEvent) {
-        this.domain = false;
-		this.realm = realm;
+        this.realm = realm;
         this.session = session;
         this.auth = auth;
         this.adminEvent = adminEvent.resource(ResourceType.GROUP);
 
-    }
-    
-    public GroupsResource(RealmModel realm, KeycloakSession session, AdminPermissionEvaluator auth, AdminEventBuilder adminEvent, Boolean domain) {
-        this.domain = null;
-		this.realm = realm;
-        this.session = session;
-        this.auth = auth;
-        this.adminEvent = adminEvent.resource(ResourceType.GROUP);
-        this.domain = domain;
     }
 
     /**
@@ -90,14 +77,15 @@ public class GroupsResource {
                                                @QueryParam("max") Integer maxResults,
                                                @QueryParam("briefRepresentation") @DefaultValue("true") boolean briefRepresentation) {
         auth.groups().requireList();
+
         List<GroupRepresentation> results;
 
         if (Objects.nonNull(search)) {
-            results = ModelToRepresentation.searchForGroupByName(realm, !briefRepresentation, search.trim(), firstResult, maxResults, this.domain);
+            results = ModelToRepresentation.searchForGroupByName(realm, !briefRepresentation, search.trim(), firstResult, maxResults);
         } else if(Objects.nonNull(firstResult) && Objects.nonNull(maxResults)) {
-            results = ModelToRepresentation.toGroupHierarchy(realm, !briefRepresentation, firstResult, maxResults,this.domain);
+            results = ModelToRepresentation.toGroupHierarchy(realm, !briefRepresentation, firstResult, maxResults);
         } else {
-            results = ModelToRepresentation.toGroupHierarchy(realm, !briefRepresentation, this.domain);
+            results = ModelToRepresentation.toGroupHierarchy(realm, !briefRepresentation);
         }
 
         return results;
@@ -111,9 +99,7 @@ public class GroupsResource {
      */
     @Path("{id}")
     public GroupResource getGroupById(@PathParam("id") String id) {
-    	logger.info("getGroupById:"+id);
         GroupModel group = realm.getGroupById(id);
-        logger.info("groud code :"+group.getCode());
         if (group == null) {
             throw new NotFoundException("Could not find group by id");
         }
@@ -154,6 +140,7 @@ public class GroupsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addTopLevelGroup(GroupRepresentation rep) {
         auth.groups().requireManage();
+
         List<GroupRepresentation> search = ModelToRepresentation.searchForGroupByName(realm, false, rep.getName(), 0, 1);
         if (search != null && !search.isEmpty() && Objects.equals(search.get(0).getName(), rep.getName())) {
             return ErrorResponse.exists("Top level group named '" + rep.getName() + "' already exists.");
@@ -168,7 +155,7 @@ public class GroupsResource {
             }
             adminEvent.operation(OperationType.UPDATE).resourcePath(session.getContext().getUri());
         } else {
-            child = realm.createGroup(rep.getName(),rep.getCode(),rep.getDomain());
+            child = realm.createGroup(rep.getName());
             GroupResource.updateGroup(rep, child);
             URI uri = session.getContext().getUri().getAbsolutePathBuilder()
                     .path(child.getId()).build();

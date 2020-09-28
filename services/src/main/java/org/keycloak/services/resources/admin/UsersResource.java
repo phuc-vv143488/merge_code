@@ -33,7 +33,6 @@ import org.keycloak.models.UserModel;
 import org.keycloak.models.utils.ModelToRepresentation;
 import org.keycloak.models.utils.RepresentationToModel;
 import org.keycloak.policy.PasswordPolicyNotMetException;
-import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.services.ErrorResponse;
 import org.keycloak.services.ForbiddenException;
@@ -56,14 +55,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * Base resource for managing users
@@ -110,11 +106,8 @@ public class UsersResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createUser(final UserRepresentation rep) {
         auth.users().requireManage();
-        
+
         String username = rep.getUsername();
-        String pass = MD5(username);
-        logger.info("--create new user:"+username+" pass:"+pass);
-        
         if (ObjectUtil.isBlank(username)) {
             return ErrorResponse.error("User name is missing", Response.Status.BAD_REQUEST);
         }
@@ -128,16 +121,6 @@ public class UsersResource {
         }
 
         try {
-        	//set password
-        	Date today = new Date();
-        	CredentialRepresentation credential = new CredentialRepresentation();
-    		credential.setCreatedDate(today.getTime());
-    		credential.setTemporary(false);
-    		credential.setType("password");
-    		credential.setValue(pass);
-    		rep.setCredentials(Arrays.asList(credential));
-    		//end set password
-    		
             UserModel user = session.users().addUser(realm, username);
             Set<String> emptySet = Collections.emptySet();
 
@@ -171,21 +154,6 @@ public class UsersResource {
             return ErrorResponse.error("Could not create user", Response.Status.BAD_REQUEST);
         }
     }
-    
-    public String MD5(String md5) {
-    	   try {
-    	        MessageDigest md = MessageDigest.getInstance("MD5");
-    	        byte[] array = md.digest(md5.getBytes());
-    	        StringBuffer sb = new StringBuffer();
-    	        for (int i = 0; i < array.length; ++i) {
-    	          sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
-    	       }
-    	        return sb.toString();
-    	    } catch (NoSuchAlgorithmException e) {
-    	    }
-    	    return null;
-    	}
-    
     /**
      * Get representation of the user
      *

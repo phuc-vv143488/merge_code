@@ -21,7 +21,6 @@ import org.keycloak.migration.MigrationModel;
 import org.keycloak.provider.Provider;
 import org.keycloak.representations.idm.PositionRepresentation;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.Set;
 
@@ -51,26 +50,16 @@ public interface RealmProvider extends Provider, ClientProvider {
     List<GroupModel> getGroupsByRole(RealmModel realm, RoleModel role, int firstResult, int maxResults);
 
     List<GroupModel> getTopLevelGroups(RealmModel realm);
-    
-    List<GroupModel> getTopLevelGroups(RealmModel realm, Boolean domain);
 
     List<GroupModel> getTopLevelGroups(RealmModel realm, Integer first, Integer max);
-    
-    List<GroupModel> getTopLevelGroups(RealmModel realm, Integer first, Integer max, Boolean domain);
 
     List searchForGroupByName(RealmModel realm, String search, Integer first, Integer max);
-    
-    List searchForGroupByName(RealmModel realm, String search, Integer first, Integer max, Boolean domain);
 
     boolean removeGroup(RealmModel realm, GroupModel group);
 
     GroupModel createGroup(RealmModel realm, String name);
-    		
-    GroupModel createGroup(RealmModel realm, String name, String code);
-    
-    GroupModel createGroup(RealmModel realm, String name, String code, Boolean domain);
 
-    GroupModel createGroup(RealmModel realm, String id, String name, String code);
+    GroupModel createGroup(RealmModel realm, String id, String name);
 
     void addTopLevelGroup(RealmModel realm, GroupModel subGroup);
 
@@ -96,9 +85,6 @@ public interface RealmProvider extends Provider, ClientProvider {
     RoleModel getRoleById(String id, RealmModel realm);
 
     ClientScopeModel getClientScopeById(String id, RealmModel realm);
- 	String getGroupByVhrId(RealmModel realm, Long vhrId);
-    
-    GroupModel getGroupByCode(RealmModel realm, String code);
     GroupModel getGroupById(String id, RealmModel realm);
 
 
@@ -123,11 +109,5 @@ public interface RealmProvider extends Provider, ClientProvider {
     PositionModel getPositionById(String id, RealmModel realm);
     boolean removePosition(RealmModel realm, PositionModel position);
     List<PositionModel> getPositions(RealmModel realm);
-    PositionModel getPositionByCode(RealmModel realm, String code);
-    String getPositionByVhrId(Long vhrId,  RealmModel realm);
     // SP_POSITION
-    
-    //sync user
-    Long getSyncInformationByTaskName(String taskName);
-    void addSyncInformation(RealmModel realm, String taskName, Long totalSync, Long totalError,Timestamp startTime, Timestamp endTime);
 }

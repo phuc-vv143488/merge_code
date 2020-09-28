@@ -318,16 +318,4 @@ public class PositionAdapter implements PositionModel {
     private PositionModel getPositionModel() {
         return cacheSession.getRealmDelegate().getPositionById(cached.getId(), realm);
     }
-
-	@Override
-	public Long getVhrId() {
-		if (isUpdated()) return updated.getVhrId();
-        return cached.getVhrId();
-	}
-
-	@Override
-	public void setVhrId(Long vhrId) {
-		getDelegateForUpdate();
-	    updated.setVhrId(vhrId);;
-	}
 }

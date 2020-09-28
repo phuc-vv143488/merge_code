@@ -16,25 +16,7 @@
  */
 package org.keycloak.services.resources;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.ServiceLoader;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.servlet.ServletContext;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.ws.rs.core.Application;
-
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.jboss.logging.Logger;
 import org.keycloak.Config;
 import org.keycloak.common.util.Resteasy;
@@ -69,18 +51,28 @@ import org.keycloak.services.scheduled.ClearExpiredClientInitialAccessTokens;
 import org.keycloak.services.scheduled.ClearExpiredEvents;
 import org.keycloak.services.scheduled.ClearExpiredUserSessions;
 import org.keycloak.services.scheduled.ClusterAwareScheduledTaskRunner;
-import org.keycloak.services.scheduled.OrganizationSynchronized;
-import org.keycloak.services.scheduled.PositionSynchronized;
 import org.keycloak.services.scheduled.ScheduledTaskRunner;
-import org.keycloak.services.scheduled.UserSynchronized;
-import org.keycloak.services.scheduled.models.CommonUtils;
-import org.keycloak.services.scheduled.models.Synchronized;
 import org.keycloak.services.util.ObjectMapperResolver;
 import org.keycloak.timer.TimerProvider;
 import org.keycloak.transaction.JtaTransactionManagerLookup;
 import org.keycloak.util.JsonSerialization;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import javax.servlet.ServletContext;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.ws.rs.core.Application;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
@@ -281,24 +273,13 @@ public class KeycloakApplication extends Application {
         long interval = Config.scope("scheduled").getLong("interval", 60L) * 1000;
 
         KeycloakSession session = sessionFactory.create();
-		try {
-			TimerProvider timer = session.getProvider(TimerProvider.class);
-			timer.schedule(new ClusterAwareScheduledTaskRunner(sessionFactory, new ClearExpiredEvents(), interval),
-					interval, "ClearExpiredEvents");
-			timer.schedule(new ClusterAwareScheduledTaskRunner(sessionFactory,
-					new ClearExpiredClientInitialAccessTokens(), interval), interval,
-					"ClearExpiredClientInitialAccessTokens");
-			timer.schedule(new ScheduledTaskRunner(sessionFactory, new ClearExpiredUserSessions()), interval,
-					ClearExpiredUserSessions.TASK_NAME);
-			timer.schedule(new ScheduledTaskRunner(sessionFactory, new UserSynchronized()), 3600000L,
-					UserSynchronized.TASK_NAME);
-			timer.schedule(new ScheduledTaskRunner(sessionFactory, new PositionSynchronized()), 3600000L,
-					PositionSynchronized.TASK_NAME);
-			timer.schedule(new ScheduledTaskRunner(sessionFactory, new OrganizationSynchronized()), 3600000L,
-					OrganizationSynchronized.TASK_NAME);
-
-			new UserStorageSyncManager().bootstrapPeriodic(sessionFactory, timer);
-		} finally {
+        try {
+            TimerProvider timer = session.getProvider(TimerProvider.class);
+            timer.schedule(new ClusterAwareScheduledTaskRunner(sessionFactory, new ClearExpiredEvents(), interval), interval, "ClearExpiredEvents");
+            timer.schedule(new ClusterAwareScheduledTaskRunner(sessionFactory, new ClearExpiredClientInitialAccessTokens(), interval), interval, "ClearExpiredClientInitialAccessTokens");
+            timer.schedule(new ScheduledTaskRunner(sessionFactory, new ClearExpiredUserSessions()), interval, ClearExpiredUserSessions.TASK_NAME);
+            new UserStorageSyncManager().bootstrapPeriodic(sessionFactory, timer);
+        } finally {
             session.close();
         }
     }

@@ -76,8 +76,4 @@ public interface PositionModel extends RoleMapperModel {
     List<String> getAttribute(String name);
 
     Map<String, List<String>> getAttributes();
-    
-    Long getVhrId();
-    
-    void setVhrId(Long vhrId);
 }

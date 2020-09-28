@@ -17,7 +17,6 @@
 
 package org.keycloak.models.utils;
 
-import org.jboss.logging.Logger;
 import org.keycloak.authorization.AuthorizationProvider;
 import org.keycloak.authorization.model.PermissionTicket;
 import org.keycloak.authorization.model.Policy;
@@ -56,7 +55,6 @@ import java.util.stream.Collectors;
  * @version $Revision: 1 $
  */
 public class ModelToRepresentation {
-	protected static final Logger logger = Logger.getLogger(ModelToRepresentation.class);
 	private static final String MENU = "menu";
     public static void buildGroupPath(StringBuilder sb, GroupModel group) {
         if (group.getParent() != null) {
@@ -76,7 +74,6 @@ public class ModelToRepresentation {
         GroupRepresentation rep = new GroupRepresentation();
         rep.setId(group.getId());
         rep.setName(group.getName());
-        rep.setCode(group.getCode());
         rep.setPath(buildGroupPath(group));
         if (!full) return rep;
         // Role mappings
@@ -101,12 +98,8 @@ public class ModelToRepresentation {
     }
 
     public static List<GroupRepresentation> searchForGroupByName(RealmModel realm, boolean full, String search, Integer first, Integer max) {
-        return searchForGroupByName(realm,full,search,first,max,false);
-    }
-    
-    public static List<GroupRepresentation> searchForGroupByName(RealmModel realm, boolean full, String search, Integer first, Integer max, Boolean domain) {
         List<GroupRepresentation> result = new LinkedList<>();
-        List<GroupModel> groups = realm.searchForGroupByName(search, first, max, domain);
+        List<GroupModel> groups = realm.searchForGroupByName(search, first, max);
         if (Objects.isNull(groups)) return result;
         for (GroupModel group : groups) {
             GroupRepresentation rep = toGroupHierarchy(group, full);
@@ -122,14 +115,8 @@ public class ModelToRepresentation {
     }
 
     public static List<GroupRepresentation> toGroupHierarchy(RealmModel realm, boolean full, Integer first, Integer max) {
-        return toGroupHierarchy(realm,full,first,max,false);
-    }
-    
-    public static List<GroupRepresentation> toGroupHierarchy(RealmModel realm, boolean full, Integer first, Integer max,Boolean domain) {
         List<GroupRepresentation> hierarchy = new LinkedList<>();
-        if(domain)
-        	logger.info("toGroupHierarchy:"+domain);
-        List<GroupModel> groups = realm.getTopLevelGroups(first, max,domain);
+        List<GroupModel> groups = realm.getTopLevelGroups(first, max);
         if (Objects.isNull(groups)) return hierarchy;
         for (GroupModel group : groups) {
             GroupRepresentation rep = toGroupHierarchy(group, full);
@@ -145,11 +132,8 @@ public class ModelToRepresentation {
     }
 
     public static List<GroupRepresentation> toGroupHierarchy(RealmModel realm, boolean full) {
-    	return toGroupHierarchy(realm,full,false);
-    }
-    public static List<GroupRepresentation> toGroupHierarchy(RealmModel realm, boolean full, Boolean domain) {
         List<GroupRepresentation> hierarchy = new LinkedList<>();
-        List<GroupModel> groups = realm.getTopLevelGroups(domain);
+        List<GroupModel> groups = realm.getTopLevelGroups();
         if (Objects.isNull(groups)) return hierarchy;
         for (GroupModel group : groups) {
             GroupRepresentation rep = toGroupHierarchy(group, full);
@@ -1059,7 +1043,7 @@ public class ModelToRepresentation {
 //    }
 
     public static List<PositionRepresentation> searchForPositionByNameAndCode(RealmModel realm, boolean full, String searchName, String searchCode, Integer first, Integer max) {
-    	List<PositionRepresentation> result = new ArrayList<>();
+        List<PositionRepresentation> result = new ArrayList<>();
         List<PositionModel> positions = realm.searchForPositionByNameAndCode(searchName, searchCode, first, max);
         if (Objects.isNull(positions)) return result;
         for (PositionModel position : positions) {

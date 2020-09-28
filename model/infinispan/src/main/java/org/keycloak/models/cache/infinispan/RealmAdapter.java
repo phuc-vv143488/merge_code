@@ -28,7 +28,6 @@ import org.keycloak.representations.idm.PositionRepresentation;
 import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.client.ClientStorageProvider;
 
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -1354,23 +1353,13 @@ public class RealmAdapter implements CachedRealmModel {
     }
 
     @Override
-    public GroupModel createGroup(String name, String code) {
-        return cacheSession.createGroup(this, name, code);
-    }
-    
-    @Override
-    public GroupModel createGroup(String name, String code, Boolean domain) {
-        return cacheSession.createGroup(this, name, code, domain);
-    }
-    
-    @Override
     public GroupModel createGroup(String name) {
-        return cacheSession.createGroup(this, name, "");
+        return cacheSession.createGroup(this, name);
     }
 
     @Override
-    public GroupModel createGroup(String id, String name, String code) {
-        return cacheSession.createGroup(this, id, name, code);
+    public GroupModel createGroup(String id, String name) {
+        return cacheSession.createGroup(this, id, name);
     }
 
     @Override
@@ -1402,30 +1391,15 @@ public class RealmAdapter implements CachedRealmModel {
     public List<GroupModel> getTopLevelGroups() {
         return cacheSession.getTopLevelGroups(this);
     }
-    
-    @Override
-    public List<GroupModel> getTopLevelGroups(Boolean domain) {
-        return cacheSession.getTopLevelGroups(this,domain);
-    }
 
     @Override
     public List<GroupModel> getTopLevelGroups(Integer first, Integer max) {
         return cacheSession.getTopLevelGroups(this, first, max);
     }
-    
-    @Override
-    public List<GroupModel> getTopLevelGroups(Integer first, Integer max,Boolean domain) {
-        return cacheSession.getTopLevelGroups(this, first, max, domain);
-    }
 
     @Override
     public List<GroupModel> searchForGroupByName(String search, Integer first, Integer max) {
         return cacheSession.searchForGroupByName(this, search, first, max);
-    }
-    
-    @Override
-    public List<GroupModel> searchForGroupByName(String search, Integer first, Integer max, Boolean domain) {
-        return cacheSession.searchForGroupByName(this, search, first, max, domain);
     }
 
     @Override
@@ -1693,47 +1667,5 @@ public class RealmAdapter implements CachedRealmModel {
         return cacheSession.getPositions(this);
     }
     // SP_POSITION
-
-	@Override
-	public String getPositionByVhrId(Long vhrId) {
-		if (isUpdated())
-			return updated.getPositionByVhrId(vhrId);
-		return session.realms().getPositionByVhrId(vhrId, this);
-	}
-
-	@Override
-	public Long getSyncInformationByTaskName(String taskName) {
-		if (isUpdated())
-			return updated.getSyncInformationByTaskName(taskName);
-		return session.realms().getSyncInformationByTaskName(taskName);
-	}
-
-	@Override
-	public void addSyncInformation(RealmModel realm, String taskName, Long totalSync, Long totalError,
-			Timestamp startTime, Timestamp endTime) {
-		cacheSession.addSyncInformation(realm, taskName, totalSync, totalError, startTime, endTime);
-		
-	}
-
-	@Override
-	public String getGroupByVhrId(Long vhrId) {
-		if (isUpdated())
-			return updated.getGroupByVhrId(vhrId);
-		return session.realms().getGroupByVhrId(this, vhrId);
-	}
-
-	@Override
-	public GroupModel getGroupByCode(String code) {
-		if (isUpdated())
-			return updated.getGroupByCode(code);
-		return session.realms().getGroupByCode(this, code);
-	}
-
-	@Override
-	public PositionModel getPositionByCode(String code) {
-		if(isUpdated())
-			return updated.getPositionByCode(code);
-		return session.realms().getPositionByCode(this, code);
-	}
 
 }

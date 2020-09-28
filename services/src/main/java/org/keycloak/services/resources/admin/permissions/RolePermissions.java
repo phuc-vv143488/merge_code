@@ -170,7 +170,6 @@ class RolePermissions implements RolePermissionEvaluator, RolePermissionManageme
                     return true;
                 }
                 // SP_POSITION
-                
                 else if (role.getName().equals(AdminRoles.MANAGE_AUTHORIZATION)) {
                     if (!root.realm().canManageAuthorization()) {
                         return adminConflictMessage(role);

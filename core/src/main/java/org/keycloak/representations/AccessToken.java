@@ -91,9 +91,6 @@ public class AccessToken extends IDToken {
 
         @JsonProperty("permissions")
         private Collection<Permission> permissions;
-        
-        @JsonProperty("domainData")
-        private Map<String, String> domainData;
 
         public Collection<Permission> getPermissions() {
             return permissions;
@@ -106,14 +103,6 @@ public class AccessToken extends IDToken {
         public void setUserName(String userName) {
             this.userName = userName;
         }
-
-        public Map<String, String> getDomainData() {
-			return domainData;
-		}
-
-		public void setDomainData(Map<String, String> domainData) {
-			this.domainData = domainData;
-		}
 
         public String getUserName() {
             return this.userName;

@@ -113,11 +113,6 @@ public class UserPropertyFileStorage implements UserLookupProvider, UserStorageP
 
                 }
                 // SP_POSITION : USER
-				@Override
-				public String getDomain(String roleId) {
-					// TODO Auto-generated method stub
-					return null;
-				}
             };
         }
     }

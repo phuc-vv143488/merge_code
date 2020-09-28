@@ -439,9 +439,6 @@ public class UserAdapter implements UserModel, JpaModel<UserEntity> {
     public void grantRoleImpl(RoleModel role) {
         UserRoleMappingEntity entity = new UserRoleMappingEntity();
         entity.setUser(getEntity());
-        if (this instanceof UserModel ) {
-        	entity.setDomain(((UserModel) this).getEmail());
-        }
         entity.setRoleId(role.getId());
         em.persist(entity);
         em.flush();
@@ -598,5 +595,6 @@ public class UserAdapter implements UserModel, JpaModel<UserEntity> {
                 .executeUpdate();
     }
     // SP_POSITION
+
 
 }

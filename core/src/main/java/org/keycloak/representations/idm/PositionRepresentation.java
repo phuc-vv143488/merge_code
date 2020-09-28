@@ -19,7 +19,6 @@ public class PositionRepresentation {
     private Date validDateStart;
     private Date validDateEnd;
     private Date createDate;
-    private Long VhrId;
 
     protected Map<String, List<String>>  attributes;
     protected List<String> realmRoles;
@@ -161,11 +160,4 @@ public class PositionRepresentation {
         this.access = access;
     }
 
-	public Long getVhrId() {
-		return VhrId;
-	}
-
-	public void setVhrId(Long vhrId) {
-		VhrId = vhrId;
-	}
 }

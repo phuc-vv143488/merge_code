@@ -71,7 +71,7 @@
 
 
                 <div class="col-md-10 col-md-push-2"  kc-read-only="!user.access.mapRoles">
-                    <div class="row" data-ng-show="selectedClient" style="display: flex;">
+                    <div class="row" data-ng-show="selectedClient">
                         <div class="col-md-3">
                             <label class="control-label" for="available-client">{{:: 'available-roles' | translate}}</label>
                             <kc-tooltip>{{:: 'user.available-roles.tooltip' | translate}}</kc-tooltip>
@@ -83,51 +83,11 @@
                                     {{r.name}}
                                 </option>
                             </select>
-                            
-                            
-                            <!-- add domain -->
-		                    <table class="table table-striped table-bordered" style="margin-bottom: 0">
-						        <thead>
-						        <tr>
-						            <th class="kc-table-actions" colspan="5">
-						                <div class="form-inline">
-						                    <div class="form-group">
-						                        <div class="input-group">
-						                            <input type="text" autofocus placeholder="{{:: 'search.placeholder' | translate}}" ng-model="searchCriteria" class="form-control search" onkeydown="if (event.keyCode == 13) document.getElementById('groupSearch').click()">
-						                            <div class="input-group-addon">
-						                                <i class="fa fa-search" id="groupSearch" ng-click="searchGroup()"></i>
-						                            </div>
-						                        </div>
-						                    </div>
-						                </div>
-						            </th>
-						        </tr>
-						        </thead>
-						        <tbody>
-						        <tr>
-						            <td style="padding-left: 0;">
-						                <div tree-id="tree"
-						                     angular-treeview="true"
-						                     tree-model="groupList"
-						                     node-id="id"
-						                     tree-type="domain"
-						                     node-label="name"
-						                     node-children="subGroups" >
-						                </div>
-						            </td>
-						        </tr>
-						        </tbody>
-		    				</table>
-    						<!-- 	end add domain -->
-    						
-                          <!--  <input ng-disabled="selectedClientRoles.length == 0" type="text" id="clients_domain" data-ng-model="clientDomain" data-placeholder="domain" style="
-   							margin-bottom: 10px;
-    						width: -webkit-fill-available;">-->
                             <button ng-disabled="selectedClientRoles.length == 0" class="btn btn-default" type="submit" ng-click="addClientRole()">
                                 {{:: 'add-selected' | translate}} <i class="fa fa-angle-double-right"></i>
-                            </button> 
+                            </button>
                         </div>
-                        <div class="col-md-3" style="position: relative;">
+                        <div class="col-md-3">
                             <label class="control-label" for="assigned-client">{{:: 'assigned-roles' | translate}}</label>
                             <kc-tooltip>{{:: 'user.assigned-roles-client.tooltip' | translate}}</kc-tooltip>
                             <select id="assigned-client" class="form-control overflow-select" multiple size=5
@@ -138,11 +98,7 @@
                                     {{r.name}}
                                 </option>
                             </select>
-                            <input type="text" style="
-   							opacity: 0;
-   							margin-bottom: 10px;
-    						width: -webkit-fill-available;">
-                            <button ng-disabled="selectedClientMappings.length == 0" class="btn btn-default" type="submit" ng-click="deleteClientRole()" style="float: bottom;position: absolute;bottom: 0;left: 0;">
+                            <button ng-disabled="selectedClientMappings.length == 0" class="btn btn-default" type="submit" ng-click="deleteClientRole()">
                                 <i class="fa fa-angle-double-left"></i> {{:: 'remove-selected' | translate}}
                             </button>
                         </div>
@@ -159,7 +115,7 @@
                             </select>
                         </div>
                     </div>
-		         </div>
+                </div>
             </div>
     </form>
 </div>

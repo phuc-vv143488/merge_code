@@ -424,5 +424,4 @@ public class UserAdapter implements CachedUserModel {
         updated.leavePosition();
     }
     // SP_POSITION
-
 }

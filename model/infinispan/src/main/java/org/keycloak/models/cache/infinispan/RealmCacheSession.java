@@ -31,8 +31,8 @@ import org.keycloak.representations.idm.PositionRepresentation;
 import org.keycloak.storage.StorageId;
 import org.keycloak.storage.client.ClientStorageProviderModel;
 
-import java.sql.Timestamp;
 import java.util.*;
+
 
 /**
  * - the high level architecture of this cache is an invalidation cache.
@@ -817,8 +817,7 @@ public class RealmCacheSession implements CacheRealmProvider {
             GroupModel model = getRealmDelegate().getGroupById(id, realm);
             if (model == null) return null;
             if (invalidations.contains(id)) return model;
-            cached = new CachedGroup(loaded, realm, model, model.getCode());
-            logger.info("code :"+model.getCode());
+            cached = new CachedGroup(loaded, realm, model);
             cache.addRevisioned(cached, startupRevision);
 
         } else if (invalidations.contains(id)) {
@@ -902,14 +901,7 @@ public class RealmCacheSession implements CacheRealmProvider {
 
     @Override
     public List<GroupModel> getTopLevelGroups(RealmModel realm) {
-    	return getTopLevelGroups(realm, false);
-    }
-    
-    @Override
-    public List<GroupModel> getTopLevelGroups(RealmModel realm,Boolean domain) {
-    	String cacheKey="";
-    	if(domain) cacheKey = getTopGroupsQueryCacheKey(realm.getId()+"domain");
-    	else cacheKey = getTopGroupsQueryCacheKey(realm.getId());
+        String cacheKey = getTopGroupsQueryCacheKey(realm.getId());
         boolean queryDB = invalidations.contains(cacheKey) || listInvalidations.contains(realm.getId());
         if (queryDB) {
             return getRealmDelegate().getTopLevelGroups(realm);
@@ -948,23 +940,12 @@ public class RealmCacheSession implements CacheRealmProvider {
 
     @Override
     public List<GroupModel> getTopLevelGroups(RealmModel realm, Integer first, Integer max) {
-        return getTopLevelGroups(realm,first,max,false);
-    }
-    
-    @Override
-    public List<GroupModel> getTopLevelGroups(RealmModel realm, Integer first, Integer max, Boolean domain) {
-    	logger.info("getTop cache:"+domain.toString());
-    	String cacheKey="";
-    	if(domain) {
-    		cacheKey = getTopGroupsQueryCacheKey(realm.getId() + first + max);
-    	}else {
-    		cacheKey = getTopGroupsQueryCacheKey(realm.getId() + first + max + "domain");
-    	} 
+        String cacheKey = getTopGroupsQueryCacheKey(realm.getId() + first + max);
         boolean queryDB = invalidations.contains(cacheKey) || listInvalidations.contains(realm.getId() + first + max);
         if (queryDB) {
-            return getRealmDelegate().getTopLevelGroups(realm, first, max,domain);
+            return getRealmDelegate().getTopLevelGroups(realm, first, max);
         }
-        
+
         GroupListQuery query = cache.get(cacheKey, GroupListQuery.class);
         if (Objects.nonNull(query)) {
             logger.tracev("getTopLevelGroups cache hit: {0}", realm.getName());
@@ -972,7 +953,7 @@ public class RealmCacheSession implements CacheRealmProvider {
 
         if (Objects.isNull(query)) {
             Long loaded = cache.getCurrentRevision(cacheKey);
-            List<GroupModel> model = getRealmDelegate().getTopLevelGroups(realm, first, max, domain);
+            List<GroupModel> model = getRealmDelegate().getTopLevelGroups(realm, first, max);
             if (model == null) return null;
             Set<String> ids = new HashSet<>();
             for (GroupModel client : model) ids.add(client.getId());
@@ -1000,11 +981,6 @@ public class RealmCacheSession implements CacheRealmProvider {
     public List<GroupModel> searchForGroupByName(RealmModel realm, String search, Integer first, Integer max) {
         return getRealmDelegate().searchForGroupByName(realm, search, first, max);
     }
-    
-    @Override
-    public List<GroupModel> searchForGroupByName(RealmModel realm, String search, Integer first, Integer max, Boolean domain) {
-        return getRealmDelegate().searchForGroupByName(realm, search, first, max, domain);
-    }
 
     @Override
     public boolean removeGroup(RealmModel realm, GroupModel group) {
@@ -1021,20 +997,8 @@ public class RealmCacheSession implements CacheRealmProvider {
     }
 
     @Override
-    public GroupModel createGroup(RealmModel realm, String name, String code) {
-        GroupModel group = getRealmDelegate().createGroup(realm, name,code);
-        return groupAdded(realm, group);
-    }
-    
-    @Override
-    public GroupModel createGroup(RealmModel realm, String name, String code,Boolean domain) {
-        GroupModel group = getRealmDelegate().createGroup(realm, name,code,domain);
-        return groupAdded(realm, group);
-    }
-    
-    @Override
     public GroupModel createGroup(RealmModel realm, String name) {
-        GroupModel group = getRealmDelegate().createGroup(realm, name,"");
+        GroupModel group = getRealmDelegate().createGroup(realm, name);
         return groupAdded(realm, group);
     }
 
@@ -1047,8 +1011,8 @@ public class RealmCacheSession implements CacheRealmProvider {
     }
 
     @Override
-    public GroupModel createGroup(RealmModel realm, String id, String name, String code) {
-        GroupModel group = getRealmDelegate().createGroup(realm, id, name,code);
+    public GroupModel createGroup(RealmModel realm, String id, String name) {
+        GroupModel group = getRealmDelegate().createGroup(realm, id, name);
         return groupAdded(realm, group);
     }
 
@@ -1395,37 +1359,5 @@ public class RealmCacheSession implements CacheRealmProvider {
         return list;
     }
     // SP_POSITION
-
-	@Override
-	public String getPositionByVhrId(Long vhrId, RealmModel realm) {
-		return getRealmDelegate().getPositionByVhrId(vhrId, realm);
-	}
-
-	@Override
-	public Long getSyncInformationByTaskName(String taskName) {
-		return	getRealmDelegate().getSyncInformationByTaskName(taskName);
-	}
-
-	@Override
-	public void addSyncInformation(RealmModel realm, String taskName, Long totalSync, Long totalError,
-			Timestamp startTime, Timestamp endTime) {
-		getRealmDelegate().addSyncInformation(realm, taskName, totalSync, totalError, startTime, endTime);
-		
-	}
-
-	@Override
-	public String getGroupByVhrId(RealmModel realm, Long vhrId) {
-		return	getRealmDelegate().getGroupByVhrId(realm, vhrId);
-	}
-
-	@Override
-	public GroupModel getGroupByCode(RealmModel realm, String code) {
-		return getRealmDelegate().getGroupByCode(realm, code);
-	}
-
-	@Override
-	public PositionModel getPositionByCode(RealmModel realm, String code) {
-		return getRealmDelegate().getPositionByCode(realm, code);
-	}
 
 }

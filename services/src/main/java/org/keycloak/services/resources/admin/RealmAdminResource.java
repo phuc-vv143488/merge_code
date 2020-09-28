@@ -1032,13 +1032,6 @@ public class RealmAdminResource {
         ResteasyProviderFactory.getInstance().injectProperties(resource);
         return resource;
     }
-    
-    @Path("domains")
-    public GroupsResource getDomains() {
-        GroupsResource resource =  new GroupsResource(realm, session, this.auth, adminEvent,true);
-        ResteasyProviderFactory.getInstance().injectProperties(resource);
-        return resource;
-    }
 
 
     @GET

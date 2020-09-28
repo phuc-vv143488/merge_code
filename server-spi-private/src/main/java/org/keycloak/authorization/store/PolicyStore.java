@@ -145,8 +145,4 @@ public interface PolicyStore {
     List<Policy> findDependentPolicies(String id, String resourceServerId);
 
     void findByResourceType(String type, String id, Consumer<Policy> policyConsumer);
-    
-    List<Policy> findPolicyByConfig(String value);
-    
-    List<Policy> findByAssociatedPolicy(String id);
 }

@@ -507,7 +507,7 @@ module.controller('ResourceServerResourceCtrl', function($scope, $http, $route, 
         $scope.createPolicy = function(resource) {
             viewState.state = {};
             viewState.state.previousUrl = '/realms/' + $route.current.params.realm + '/clients/' + client.id + '/authz/resource-server/resource';
-            $location.path('/realms/' + $route.current.params.realm + '/clients/' + client.id + '/authz/resource-server/permission/scope/create').search({rsrid: resource._id});
+            $location.path('/realms/' + $route.current.params.realm + '/clients/' + client.id + '/authz/resource-server/permission/resource/create').search({rsrid: resource._id});
         }
 
         $scope.searchQuery();
@@ -1916,19 +1916,6 @@ module.controller('ResourceServerPolicyScopeDetailCtrl', function($scope, $route
                         $scope.selectedScopes = [];
                     }
                     $scope.selectedScopes.push(data);
-                });
-            }
-            
-            var resourceId = $location.search()['rsrid'];
-
-            if (resourceId) {
-                ResourceServerResource.get({
-                    realm : $route.current.params.realm,
-                    client : client.id,
-                    rsrid : resourceId
-                }, function(data) {
-                    data.text = data.name;
-                    $scope.selectedResource = data;
                 });
             }
         },

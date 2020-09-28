@@ -16,7 +16,6 @@
  */
 package org.keycloak.services.managers;
 
-import org.jboss.logging.Logger;
 import org.keycloak.Config;
 import org.keycloak.common.Profile;
 import org.keycloak.common.enums.SslRequired;
@@ -55,8 +54,6 @@ import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.sessions.AuthenticationSessionProvider;
 import org.keycloak.storage.UserStorageProviderModel;
-
-
 import org.keycloak.services.clientregistration.policy.DefaultClientRegistrationPolicies;
 
 import java.util.Collections;
@@ -70,7 +67,7 @@ import java.util.List;
  * @version $Revision: 1 $
  */
 public class RealmManager {
-	private final static Logger logger = Logger.getLogger(RealmManager.class);
+
     protected KeycloakSession session;
     protected RealmProvider model;
 
@@ -335,7 +332,7 @@ public class RealmManager {
         realmAdminApp.setName(realm.getName() + " Realm");
         realmAdminApp.setBearerOnly(true);
         realm.setMasterAdminClient(realmAdminApp);
-        logger.info("createMasterAdminManagement");
+
         for (String r : AdminRoles.ALL_REALM_ROLES) {
             RoleModel role = realmAdminApp.addRole(r);
             role.setDescription("${role_"+r+"}");
@@ -347,6 +344,7 @@ public class RealmManager {
     private void checkMasterAdminManagementRoles(RealmModel realm) {
         RealmModel adminRealm = model.getRealmByName(Config.getAdminRealm());
         RoleModel adminRole = adminRealm.getRole(AdminRoles.ADMIN);
+
         ClientModel masterAdminClient = realm.getMasterAdminClient();
         for (String r : AdminRoles.ALL_REALM_ROLES) {
             RoleModel found = masterAdminClient.getRole(r);
@@ -372,11 +370,8 @@ public class RealmManager {
         realmAdminClient.setBearerOnly(true);
         realmAdminClient.setFullScopeAllowed(false);
         realmAdminClient.setProtocol(OIDCLoginProtocol.LOGIN_PROTOCOL);
+
         for (String r : AdminRoles.ALL_REALM_ROLES) {
-        	if (r.equalsIgnoreCase(AdminRoles.ADMIN_FULL)) {
-        		logger.info("remove admin-full when create new realm");
-        		continue;
-        	}
             addAndSetAdminRole(r, realmAdminClient, adminRole);
         }
         addQueryCompositeRoles(realmAdminClient);
@@ -390,8 +385,8 @@ public class RealmManager {
 
 
     private void checkRealmAdminManagementRoles(RealmModel realm) {
-    	logger.info("checkRealmAdminManagementRoles:"+realm.getName());
         if (realm.getName().equals(Config.getAdminRealm())) { return; } // don't need to do this for master realm
+
         String realmAdminClientId = getRealmAdminClientId(realm);
         ClientModel realmAdminClient = realm.getClientByClientId(realmAdminClientId);
         RoleModel adminRole = realmAdminClient.getRole(AdminRoles.REALM_ADMIN);

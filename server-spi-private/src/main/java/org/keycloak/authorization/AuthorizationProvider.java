@@ -433,16 +433,6 @@ public final class AuthorizationProvider implements Provider {
             public void findByResourceType(String type, String id, Consumer<Policy> policyConsumer) {
                 policyStore.findByResourceType(type, id, policyConsumer);
             }
-
-			@Override
-			public List<Policy> findPolicyByConfig(String value) {
-				return policyStore.findPolicyByConfig(value);
-			}
-
-			@Override
-			public List<Policy> findByAssociatedPolicy(String id) {
-				return policyStore.findByAssociatedPolicy(id);
-			}
         };
     }
 
@@ -569,11 +559,6 @@ public final class AuthorizationProvider implements Provider {
             public void findByTypeInstance(String type, String resourceServerId, Consumer<Resource> consumer) {
                 delegate.findByTypeInstance(type, resourceServerId, consumer);
             }
-
-			@Override
-			public String getDomain(String userId, String roleId) {
-				return delegate.getDomain(userId, roleId);
-			}
         };
     }
 }

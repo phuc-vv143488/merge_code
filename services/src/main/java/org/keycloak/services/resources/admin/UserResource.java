@@ -71,11 +71,8 @@ import org.keycloak.services.managers.UserSessionManager;
 import org.keycloak.services.resources.LoginActionsService;
 import org.keycloak.services.resources.account.AccountFormService;
 import org.keycloak.services.resources.admin.permissions.AdminPermissionEvaluator;
-import org.keycloak.services.scheduled.models.CommonUtils;
-import org.keycloak.services.scheduled.models.Synchronized;
 import org.keycloak.services.validation.Validation;
 import org.keycloak.storage.ReadOnlyException;
-import org.keycloak.util.TokenUtil;
 import org.keycloak.utils.ProfileHelper;
 
 import javax.ws.rs.Consumes;
@@ -99,9 +96,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -205,7 +200,6 @@ public class UserResource {
     }
 
     public static void updateUserFromRep(UserModel user, UserRepresentation rep, Set<String> attrsToRemove, RealmModel realm, KeycloakSession session, boolean removeMissingRequiredActions) {
-    	Date today = new Date();
         if (rep.getUsername() != null && realm.isEditUsernameAllowed()) {
             user.setUsername(rep.getUsername());
         }
@@ -234,12 +228,7 @@ public class UserResource {
                 }
             }
         }
-        CredentialRepresentation credentialInit = new CredentialRepresentation();
-        credentialInit.setCreatedDate(today.getTime());
-        credentialInit.setTemporary(true);
-        credentialInit.setType(CredentialRepresentation.PASSWORD);
-        credentialInit.setValue(TokenUtil.encrytion(rep.getUsername()));
-        rep.setCredentials(Arrays.asList(credentialInit));
+
         List<CredentialRepresentation> credentials = rep.getCredentials();
         if (credentials != null) {
             for (CredentialRepresentation credential : credentials) {
