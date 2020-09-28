@@ -1,0 +1,83 @@
+<div class="col-sm-9 col-md-10 col-sm-push-3 col-md-push-2" ng-init="init()">
+    <div class="logo-login">
+        <div class="logo" ></div>
+        <div class="dropdown-login" data-ng-include data-src="resourceUrl + '/partials/menu.html'"></div>
+    </div>
+
+    <kc-tabs-position-list></kc-tabs-position-list>
+
+    <table class="table table-striped table-bordered" style="margin-bottom: 0">
+        <thead>
+        <tr>
+            <th class="kc-table-actions" colspan="13">
+                <div class="form-inline">
+                    <div class="pull-right button-groups" data-ng-show="access.manageUsers" style="margin-top: 10px; display: flex; width: 100%; flex-wrap: wrap-reverse;">
+                        <button id="viewAllPositions" class="btn btn-primary" ng-click="query.search = null; query.code = null; firstPage()" style="margin-left: 0px">{{:: 'view-all-positions' | translate}}</button>
+                        <button id="createPosition" class="btn btn-primary" ng-click="createPosition()" style="margin: 0px; margin-right: 16px">{{:: 'new' | translate}}</button>
+                        <div class="input-group" style="position: relative; margin-left: auto; margin-right: 0px;">
+                            <input type="text" autofocus placeholder="{{:: 'search.placeholder' | translate}}" data-ng-model="query.search" class="form-control search" onkeydown="if (event.keyCode == 13) document.getElementById('positionSearch').click()">
+                            <div class="input-group-addon">
+                                <i class="fa fa-search" id="positionSearch" data-ng-click="firstPage()"></i>
+                            </div>
+                        </div>
+                        <div class="input-group" style="position: relative; margin-left:10px ; margin-right: 0px;">
+                            <input type="text" autofocus placeholder="{{:: 'code.placeholder' | translate}}" data-ng-model="query.code" class="form-control search" onkeydown="if (event.keyCode == 13) document.getElementById('positionSearch').click()">
+                            <div class="input-group-addon">
+                                <i class="fa fa-search" id="positionSearchCode" data-ng-click="firstPage()"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </th>
+        </tr>
+        <tr>
+        <tr data-ng-show="searchLoaded && positions.length > 0">
+            <!--<th class="w-15 w-15-1">{{:: 'id' | translate}}</th>-->
+            <th class="w-15 w-15-2">{{:: 'pos-code' | translate}}</th>
+            <th class="w-15 w-15-3">{{:: 'pos-name' | translate}}</th>
+            <th class="w-15 w-15-4">{{:: 'description' | translate}}</th>
+            <th class="w-15 w-15-5">{{:: 'status' | translate}}</th>
+            <th class="w-15 w-15-5">{{:: 'type' | translate}}</th>
+            <th class="w-15 w-15-5">{{:: 'created-at' | translate}}</th>
+            <th class="w-15-6">{{:: 'actions' | translate}}</th>
+        </tr>
+        </thead>
+        <tfoot data-ng-show="positions && (positions.length >= query.max || query.first > 0)">
+            <tr>
+                <td colspan="7">
+                    <div class="table-nav">
+                        <button data-ng-click="firstPage()" class="first" ng-disabled="query.first == 0">{{:: 'first-page' | translate}}</button>
+                        <button data-ng-click="previousPage()" class="prev" ng-disabled="query.first == 0"><i class="icon-left"></i>{{:: 'previous-page' | translate}}</button>
+                        <button data-ng-click="nextPage()" class="next" ng-disabled="positions.length < query.max">{{:: 'next-page' | translate}}<i class="icon-right"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </tfoot>
+        <tbody>
+            <tr ng-repeat="position in positions">
+                <td class="clip"><a href="#/realms/{{realm.realm}}/positions/{{position.posId}}">{{position.posCode}}</a></td>
+                <td class="clip">{{position.posName}}</td>
+                <td class="clip">{{position.description}}</td>
+                <td class="clip">{{position.status === 1 ? 'Activated' : 'Not activated'}}</td>
+                <td class="clip">{{position.type === 1 ? 'True' : 'False'}}</td>
+                <td class="clip">{{position.createDate|date:'shortDate'}}&nbsp;{{position.createDate|date:'mediumTime'}}</td>
+                <td id="users-tap"><a class="users-actions">
+                    <i  id="users-actions-icon"></i>
+                    <ul id="users-menu">
+                        <li class="kc-action-cell" kc-open="/realms/{{realm.realm}}/positions/{{position.posId}}">{{:: 'edit' | translate}}</li>
+                        <li class="kc-action-cell" data-ng-click="removePosition(position)">{{:: 'delete' | translate}}</li> <!-- data-ng-show="position.access.manage"-->
+                    </ul>
+                </a>
+                </td>
+            </tr>
+            <tr data-ng-show="!positions || positions.length == 0">
+                <td class="text-muted" data-ng-show="!positions">{{:: 'positions.instruction' | translate}}</td>
+                <td class="text-muted" data-ng-show="searchLoaded && positions.length == 0 && lastSearch != null">{{:: 'no-results' | translate}}</td>
+                <td class="text-muted" data-ng-show="searchLoaded && positions.length == 0 && lastSearch == null">{{:: 'no-positions-available' | translate}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<kc-menu></kc-menu>
+

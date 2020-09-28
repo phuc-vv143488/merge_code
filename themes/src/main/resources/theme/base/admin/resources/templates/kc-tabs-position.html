@@ -1,0 +1,18 @@
+<div data-ng-controller="PositionTabCtrl">
+    <h1 data-ng-hide="create">
+        {{position.posName|capitalize}}
+        <i id="removePosition" class="pficon pficon-delete clickable" data-ng-show="position.access.manage" data-ng-click="removePosition()"></i>
+    </h1>
+    <h1 data-ng-show="create">{{:: 'add-position' | translate}}</h1>
+
+    <ul class="nav nav-tabs" data-ng-show="!create">
+        <li ng-class="{active: !path[4] && path[0] != 'create'}"><a href="#/realms/{{realm.realm}}/positions/{{position.posId}}">{{:: 'settings' | translate}}</a></li>
+        <li ng-class="{active: path[4] == 'attributes'}"><a href="#/realms/{{realm.realm}}/positions/{{position.posId}}/attributes">{{:: 'attributes' | translate}}</a></li>
+        <li ng-class="{active: path[4] == 'role-mappings'}" ><a href="#/realms/{{realm.realm}}/positions/{{position.posId}}/role-mappings">{{:: 'role-mappings' | translate}}</a></li>
+        <li ng-class="{active: path[4] == 'members'}"><a href="#/realms/{{realm.realm}}/positions/{{position.posId}}/members">{{:: 'members' | translate}}</a></li>
+<!--        <li ng-class="{active: path[4] == 'permissions'}" data-ng-show="serverInfo.featureEnabled('ADMIN_FINE_GRAINED_AUTHZ') && position.access.manage && access.manageAuthorization">-->
+<!--            <a href="#/realms/{{realm.realm}}/positions/{{position.id}}/permissions">{{:: 'authz-permissions' | translate}}</a>-->
+<!--            <kc-tooltip>{{:: 'manage-permissions-position.tooltip' | translate}}</kc-tooltip>-->
+<!--        </li>-->
+    </ul>
+</div>

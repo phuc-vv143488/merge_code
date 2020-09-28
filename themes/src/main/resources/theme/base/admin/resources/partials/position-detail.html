@@ -1,0 +1,131 @@
+<div class="col-sm-9 col-md-10 col-sm-push-3 col-md-push-2">
+    <div class="logo-login">
+        <div class="logo" ></div>
+        <div class="dropdown-login" data-ng-include data-src="resourceUrl + '/partials/menu.html'"></div>
+    </div>
+    <ol class="breadcrumb">
+        <li><a href="#/realms/{{realm.realm}}/positions">{{:: 'positions' | translate}}</a></li>
+        <li data-ng-hide="create">{{position.posName}}</li>
+        <li data-ng-show="create">{{:: 'add-position' | translate}}</li>
+    </ol>
+
+    <kc-tabs-position></kc-tabs-position>
+
+    <form class="form-horizontal" name="positionForm" novalidate ng-enter="save()">
+
+        <fieldset class="border-top">
+            <div class="form-group">
+                <label class="col-md-2 control-label"for="posId">{{:: 'id' | translate}}</label>
+                <div class="col-md-6">
+                    <input class="form-control" type="text" id="posId" name="id" data-ng-model="position.posId" autofocus data-ng-readonly="true">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-md-2 control-label"for="posId">{{:: 'created-at' | translate}}</label>
+                <div class="col-md-6" style="font-family: 'Open Sans', sans-serif;">
+                    {{position.createDate|date:'shortDate'}}&nbsp;{{position.createDate|date:'mediumTime'}}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-md-2 control-label"for="posName">{{:: 'pos-name' | translate}} <span class="required" data-ng-show="create">*</span></label>
+                <div class="col-md-6">
+                    <!-- Characters >,<,/,\ are forbidden in pos-name -->
+                    <input class="form-control" type="text" id="posName" name="posName" data-ng-model="position.posName" autofocus
+                           required ng-pattern="/^[^\<\>\\\/]*$/" data-ng-maxlength="255" data-ng-change="onChangeName()">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label"for="posCode">{{:: 'pos-code' | translate}} <span class="required" data-ng-show="create">*</span></label>
+                <div class="col-md-6">
+                    <!-- Characters >,<,/,\ are forbidden in posCode -->
+                    <input class="form-control" type="text" id="posCode" name="posCode" data-ng-model="position.posCode" autofocus
+                           required ng-pattern="/^[^\<\>\\\/]*$/" data-ng-maxlength="255" data-ng-change="onChangeCode()">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label" for="description">{{:: 'description' | translate}}</label>
+
+                <div class="col-md-6">
+                    <input class="form-control" type="text" name="description" id="description" data-ng-maxlength="255"
+                           data-ng-model="position.description">
+                </div>
+            </div>
+            <div class="form-group clearfix block">
+                <label class="col-md-2 control-label" for="status">{{:: 'position-status' | translate}}</label>
+                <div class="col-md-6">
+                    <input ng-model="position.status" name="status" id="status" onoffswitch on-text="{{:: 'onText' | translate}}" off-text="{{:: 'offText' | translate}}"/>
+                </div>
+                <kc-tooltip>{{:: 'position-status.tooltip' | translate}}</kc-tooltip>
+            </div>
+            <div class="form-group clearfix block">
+                <label class="col-md-2 control-label" for="type">{{:: 'position-type' | translate}}</label>
+                <div class="col-md-6">
+                    <input ng-model="position.type" name="type" id="type" onoffswitch on-text="{{:: 'onText' | translate}}" off-text="{{:: 'offText' | translate}}"/>
+                </div>
+                <kc-tooltip>{{:: 'position-type.tooltip' | translate}}</kc-tooltip>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label" for="maxUserChiNhanh">{{:: 'limit-user-branch' | translate}}</label>
+
+                <div class="col-md-6">
+                    <input class="form-control" type="number" min="0" name="maxUserChiNhanh" id="maxUserChiNhanh"
+                           data-ng-model="position.maxUserChiNhanh" max="999999999999999">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label" for="maxUserTrungTam">{{:: 'limit-user-center' | translate}}</label>
+
+                <div class="col-md-6">
+                    <input class="form-control" type="number" min="0" name="maxUserTrungTam" id="maxUserTrungTam"
+                           data-ng-model="position.maxUserTrungTam" max="999999999999999">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label" for="limitType">{{:: 'limit-type' | translate}}</label>
+
+                <div class="col-md-6">
+                    <input class="form-control" type="number" min="0" name="limitType" id="limitType"
+                           data-ng-model="position.limitType" max="999999999999999">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-md-2 control-label" for="validDateStart">{{:: 'validate-start' | translate}}</label>
+                <div class="col-md-3">
+                    <div style="display: flex; width: 250px">
+                        <input class="form-control" type="date" id="validDateStart" name="validDateStart" data-ng-model="position.validDateStart"  placeholder="yyyy-MM-dd" ng-change='checkErr(position.validDateStart,position.validDateEnd)'>
+                        <button class="btn btn-default" ng-click="position.validDateStart = null; checkErr(position.validDateStart, position.validDateEnd)">Clear</button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label" for="validDateEnd">{{:: 'validate-end' | translate}}</label>
+                <div class="col-md-3">
+                    <div style="display: flex; width: 250px">
+                        <input class="form-control" type="date" id="validDateEnd" name="validDateEnd" data-ng-model="position.validDateEnd"  placeholder="yyyy-MM-dd" ng-change='checkErr(position.validDateStart,position.validDateEnd)'>
+                        <button class="btn btn-default" ng-click="position.validDateEnd = null; checkErr(position.validDateStart, position.validDateEnd)">Clear</button>
+                    </div>
+                    <p style="color: red">{{errMessage}}</p>
+                </div>
+            </div>
+
+        </fieldset>
+
+        <div class="form-group">
+            <div class="col-md-10 col-md-offset-2" data-ng-show="create && access.manageUsers">
+                <button kc-save data-ng-disabled="!isValidate">{{:: 'save' | translate}}</button>
+                <button kc-cancel data-ng-click="cancel()">{{:: 'cancel' | translate}}</button>
+            </div>
+
+            <div class="col-md-10 col-md-offset-2" data-ng-show="!create && position.access.manage">
+                <button kc-save  data-ng-disabled="!changed && !isValidate">{{:: 'save' | translate}}</button>
+                <button kc-reset data-ng-disabled="!changed">{{:: 'cancel' | translate}}</button>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+<kc-menu></kc-menu>

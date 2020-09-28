@@ -1,0 +1,68 @@
+<!--<div class="navbar-header">-->
+<!--    <button type="button" class="navbar-toggle" ng-init="navCollapsed = true" ng-click="navCollapsed = !navCollapsed">-->
+<!--      <span class="sr-only">{{:: 'toggle-navigation' | translate}}</span>-->
+<!--      <span class="icon-bar"></span>-->
+<!--      <span class="icon-bar"></span>-->
+<!--      <span class="icon-bar"></span>-->
+<!--  </button>-->
+<!--  <a class="navbar-brand" href="#" onclick="location.href = authUrl"></a>-->
+<!--</div>-->
+
+<!--<div class="collapse navbar-collapse" collapse="navCollapsed">-->
+<!--    <ul class="nav navbar-nav navbar-utility">-->
+<!--        <li class="dropdown">-->
+<!--            <a href="#" class="dropdown-toggle" data-toggle="dropdown">-->
+<!--                <span class="pficon pficon-user"></span>-->
+<!--                {{auth.user.displayName|capitalize}} <b class="caret"></b>-->
+<!--            </a>-->
+<!--            <ul class="dropdown-menu">-->
+<!--                <li><a data-ng-click="auth.authz.accountManagement()" href="">{{:: 'manage-account' | translate}}</a></li>-->
+<!--                <li><a href="#/server-info">{{:: 'server-info' | translate}}</a></li>-->
+<!--                <li class="divider"></li>-->
+<!--                <li><a href="" ng-click="auth.authz.logout()">{{:: 'sign-out' | translate}}</a></li>-->
+<!--            </ul>-->
+<!--        </li>-->
+<!--    </ul>-->
+<!--</div>-->
+
+<div style="background: #FFFFFF">
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <span class="text" >Hi, </span>
+            <span class="nam1" >{{auth.user.displayName|capitalize}}</span>
+            <img class="img-dropdown" src="https://www.ruaanhgiare.com/wp-content/uploads/2018/03/anh-the-3x4.jpg">
+        </a>
+
+        <!--            <div class="img-dropdown" style="background:"></div>-->
+        <ul class="dropdown-menu">
+            <div class="dropdown-info" style="display: flex">
+                <img class="img-dropdown-1"
+                     src="https://www.ruaanhgiare.com/wp-content/uploads/2018/03/anh-the-3x4.jpg">
+                <div style="margin-top:20px ">
+                    <li class="dropdown-name"><a>{{auth.user.displayName|capitalize}}</a></li>
+                    <li class="dropdown-name-mini"><a>Administrator</a></li>
+                </div>
+            </div>
+            <div class="manager">
+                <li class="dropdown-manage">
+                    <div class="dropdown-manage-icon"></div>
+                    <a data-ng-click="auth.authz.accountManagement()" href="">{{:: 'Manage' | translate}}</a></li>
+                <li  class="dropdown-another">
+                    <div class="dropdown-another-icon"></div>
+                    <a href="#/server-info">{{:: 'server-info' | translate}}</a></li>
+            </div>
+
+            <div class="dropdown-logout">
+                <li class="dropdown-change">
+                    <div class="dropdown-change-icon"></div>
+                    <a>Change Account</a>
+                </li>
+                <li class="logout">
+                    <div class="logout-icon"></div>
+                    <a class="logout-text" href="" ng-click="auth.authz.logout()">{{:: 'LogOut' | translate}}</a>
+                </li>
+            </div>
+
+        </ul>
+    </li>
+</div>
